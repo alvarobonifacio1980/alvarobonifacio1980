@@ -45,6 +45,15 @@ Também desenvolvo o **CDMF-Lab**, iniciativa independente voltada à pesquisa a
 
 ## Projetos e pesquisa
 
+### BazinBot
+Aplicativo de valuation educacional de ações brasileiras pelo Método de Bazin, desenvolvido como trabalho aplicado da pós-graduação em Ciência de Dados para Mercado Financeiro com IA (XP Educação).
+
+Automatiza a coleta de preços e dividendos, o tratamento das séries e o cálculo do valor estimado em uma interface web.
+
+**Tecnologias:** `Python` • `Pandas` • `yfinance` • `Streamlit` • `GitHub` • `Render`
+
+[Acessar o BazinBot](https://bazinbot.onrender.com/)
+
 ### CDMF-Lab
 Laboratório independente de pesquisa aplicada e desenvolvimento de soluções em Ciência de Dados, Inteligência Artificial e análise quantitativa.
 
