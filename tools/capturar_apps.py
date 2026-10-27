@@ -19,10 +19,19 @@ with sync_playwright() as p:
         try:
             page.goto(url, wait_until="domcontentloaded", timeout=180000)
             page.locator('[data-testid="stAppViewContainer"]').wait_for(timeout=180000)
-            page.wait_for_timeout(5000)
-            body = page.locator("body").inner_text(timeout=15000)
-            if label.lower().split()[0] not in body.lower():
-                raise RuntimeError(f"Conteúdo inesperado em {url}: {body[:180]}")
+            # Streamlit pode renderizar o conteúdo após o DOM inicial do navegador.
+            # Não publicar capturas de splash/loading como se fossem interfaces prontas.
+            expected = label.lower().split()[0]
+            try:
+                page.wait_for_function(
+                    "needle => document.body.innerText.toLowerCase().includes(needle)",
+                    expected,
+                    timeout=110000,
+                )
+            except Exception:
+                body = page.locator("body").inner_text(timeout=15000)
+                raise RuntimeError(f"Conteúdo esperado '{expected}' não carregou: {body[:220]}")
+            page.wait_for_timeout(2000)
             page.screenshot(path=str(OUTPUT / f"{name}.png"), full_page=True, animations="disabled")
             print(f"Captura realizada: {name}.png", flush=True)
         except Exception as exc:
