@@ -18,6 +18,14 @@ Os projetos abaixo combinam aplicações que podem ser utilizadas no navegador c
 | **[Chatbot Financeiro](https://github.com/alvarobonifacio1980/chatbot)** | Integração de IA generativa via API OpenAI, engenharia de prompts, histórico por sessão e interface conversacional de educação financeira. | [Experimentar chatbot](https://chatbot-financeiro-9p1s.onrender.com/) |
 | **[FotoImagem](https://github.com/alvarobonifacio1980/foto_imagem)** | Processamento de fotografias com Python e OpenCV, diferentes efeitos visuais e aplicação web interativa. | [Experimentar aplicativo](https://fotoimagem.onrender.com/) |
 
+### Aplicativos em funcionamento
+
+Capturas reais das interfaces publicadas no Render, obtidas automaticamente pelo navegador:
+
+| BazinBot | Chatbot Financeiro | FotoImagem |
+| :---: | :---: | :---: |
+| [![BazinBot no Render](assets/screenshots/bazinbot.png)](https://bazinbot.onrender.com/) | [![Chatbot Financeiro no Render](assets/screenshots/chatbot.png)](https://chatbot-financeiro-9p1s.onrender.com/) | [![FotoImagem no Render](assets/screenshots/fotoimagem.png)](https://fotoimagem.onrender.com/) |
+
 > As demonstrações estão hospedadas no Render; no plano gratuito, o primeiro acesso após inatividade pode demorar. O chatbot utiliza IA generativa e suas respostas não constituem recomendação de investimento.
 
 ### Ciência de Dados e pesquisa aplicada
