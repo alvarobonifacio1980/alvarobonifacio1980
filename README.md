@@ -1,98 +1,61 @@
 # Álvaro Bonifácio
 
-**Data & Analytics | Data Science | Machine Learning | Python | SQL | Power BI | Gestão de TI, Projetos e ITSM**
+**Tecnologia da Informação · Ciência de Dados · Inteligência Artificial · Gestão de TI**
 
-Profissional de Tecnologia da Informação com mais de 30 anos de experiência, combinando trajetória em desenvolvimento de sistemas, gestão de serviços, projetos e processos de TI com atuação atual em Dados, Analytics, Ciência de Dados e Inteligência Artificial.
+Profissional de Tecnologia da Informação com **mais de 30 anos de experiência** em desenvolvimento de sistemas, gestão de serviços, projetos, processos e equipes. Atualmente, concentro meus estudos e projetos em **Ciência de Dados, Machine Learning e IA aplicada**, combinando experiência técnica e gerencial com investigação quantitativa e desenvolvimento de aplicações.
 
-Atualmente curso **Mestrado em Ciência da Computação na Universidade Federal de Juiz de Fora (UFJF)**, na área de **Inteligência Computacional**, desenvolvendo pesquisas aplicadas em análise e previsão de séries temporais com métodos estatísticos, Machine Learning e Deep Learning.
+🎓 **Mestrando em Ciência da Computação — UFJF**, com interesse de pesquisa em Inteligência Computacional, modelagem preditiva e séries temporais financeiras. Desenvolvo também iniciativas independentes no **[CDMF-Lab](https://www.cdmf.ia.br)**, conectando dados, tecnologia e mercado financeiro.
 
-Também desenvolvo o **CDMF-Lab**, iniciativa independente voltada à pesquisa aplicada, desenvolvimento de soluções analíticas e produção de conteúdo em Ciência de Dados, Inteligência Artificial e mercado financeiro.
+## Projetos em destaque
 
----
+Os projetos abaixo combinam aplicações que podem ser utilizadas no navegador com estudos técnicos e acadêmicos documentados.
 
-## Áreas de atuação
+### Aplicações web
 
-- Data Analysis e Data Science
-- Machine Learning e Deep Learning
-- Séries temporais e modelagem preditiva
-- Business Intelligence e Data Visualization
-- Gestão de Serviços de TI (ITSM / ITIL)
-- Gestão de Projetos e Processos
-- Governança de TI e melhoria contínua
-- Observabilidade, disponibilidade e capacidade
+| Projeto | O que demonstra | Acesso |
+| :--- | :--- | :--- |
+| **[BazinBot](https://github.com/alvarobonifacio1980/BazinBot)** | Coleta e tratamento de dados financeiros, cálculo educacional de valuation pelo Método de Bazin e interface Streamlit. | [Experimentar aplicativo](https://bazinbot.onrender.com/) |
+| **[Chatbot Financeiro](https://github.com/alvarobonifacio1980/chatbot)** | Integração de IA generativa via API OpenAI, engenharia de prompts, histórico por sessão e interface conversacional de educação financeira. | [Experimentar chatbot](https://chatbot-financeiro-9p1s.onrender.com/) |
+| **[FotoImagem](https://github.com/alvarobonifacio1980/foto_imagem)** | Processamento de fotografias com Python e OpenCV, diferentes efeitos visuais e aplicação web interativa. | [Experimentar aplicativo](https://fotoimagem.onrender.com/) |
 
----
+> As demonstrações estão hospedadas no Render; no plano gratuito, o primeiro acesso após inatividade pode demorar. O chatbot utiliza IA generativa e suas respostas não constituem recomendação de investimento.
 
-## Tecnologias e ferramentas
+### Ciência de Dados e pesquisa aplicada
 
-**Dados e IA**
+| Projeto | O que demonstra | Repositório |
+| :--- | :--- | :--- |
+| **Aprendizado de Máquina** | Estudos de previsão de volatilidade financeira, baselines, preparação de séries temporais e validação metodológica. | [Ver notebooks e documentação](https://github.com/alvarobonifacio1980/Aprendizado-de-Maquina) |
+| **Mineração de Dados** | Preparação de dados e EDA, agrupamento, regras de associação, classificação e regressão. | [Ver notebooks e dados](https://github.com/alvarobonifacio1980/Mineracao-de-Dados) |
+| **Análise de Dados** | Integração e tratamento de fontes, ETL, exploração de dados e estudos de séries financeiras. | [Ver projetos](https://github.com/alvarobonifacio1980/Analise-de-Dados) |
 
-`Python` • `SQL` • `Pandas` • `NumPy` • `Scikit-learn` • `Machine Learning` • `Deep Learning` • `Estatística` • `Séries Temporais`
+**Pesquisa em andamento:** previsão da volatilidade futura de ativos brasileiros, com atenção especial à PETR4. Os experimentos investigam séries temporais, indicadores financeiros, modelos estatísticos e de aprendizado de máquina, respeitando separação temporal entre treino e teste e prevenção de *data leakage*. Resultados experimentais não são promessas de desempenho em operações financeiras.
 
-**Analytics e visualização**
+## Competências e ferramentas
 
-`Power BI` • `Data Visualization` • `Dashboards`
+| Área | Conhecimentos e tecnologias |
+| :--- | :--- |
+| **Dados e IA** | Python, Pandas, NumPy, Scikit-learn, estatística aplicada, Machine Learning, séries temporais e métodos de Deep Learning |
+| **Análise e visualização** | SQL, Power BI, análise exploratória, ETL, dashboards e visualização de dados |
+| **Desenvolvimento** | Git, GitHub, Streamlit, OpenCV, APIs e aplicações com IA generativa |
+| **Gestão de TI** | ITSM, ITIL, gestão de serviços e projetos, SLAs/ANS, BPMN, indicadores, observabilidade e melhoria contínua |
 
-**Engenharia e desenvolvimento**
+## Abordagem de trabalho
 
-`Git` • `GitHub` • `Streamlit` • `LangChain`
+Busco soluções **simples, úteis, verificáveis e bem documentadas**. Em projetos analíticos, priorizo qualidade dos dados, reprodutibilidade, baselines adequados, validação temporal e interpretação cuidadosa dos resultados. Na gestão, valorizo a conexão entre processos, tecnologia e objetivos de negócio.
 
-**Gestão de Tecnologia**
+## Formação
 
-`ITSM` • `ITIL` • `SLA/ANS` • `KPI` • `BPMN` • `Observabilidade` • `Gestão de Projetos`
-
----
-
-## Projetos e pesquisa
-
-### BazinBot
-Aplicativo de valuation educacional de ações brasileiras pelo Método de Bazin, desenvolvido como trabalho aplicado da pós-graduação em Ciência de Dados para Mercado Financeiro com IA (XP Educação).
-
-Automatiza a coleta de preços e dividendos, o tratamento das séries e o cálculo do valor estimado em uma interface web.
-
-**Tecnologias:** `Python` • `Pandas` • `yfinance` • `Streamlit` • `GitHub` • `Render`
-
-[Acessar o BazinBot](https://bazinbot.onrender.com/)
-
-### CDMF-Lab
-Laboratório independente de pesquisa aplicada e desenvolvimento de soluções em Ciência de Dados, Inteligência Artificial e análise quantitativa.
-
-[Conheça o CDMF-Lab](https://www.cdmf.ia.br)
-
-### Previsão de volatilidade de ativos financeiros
-Pesquisa acadêmica em desenvolvimento no Mestrado em Ciência da Computação, envolvendo preparação de dados, análise exploratória, séries temporais, definição de baselines, validação temporal, Machine Learning e Deep Learning.
-
-### Projetos técnicos
-Este portfólio está sendo organizado para reunir projetos selecionados de Data Science, Analytics, IA e desenvolvimento de aplicações. Os repositórios serão disponibilizados gradualmente após revisão técnica e de documentação.
-
----
-
-## Princípios de trabalho
-
-- Clareza e simplicidade na solução de problemas
-- Uso de dados para apoiar decisões
-- Reprodutibilidade e validação metodológica
-- Prevenção de data leakage em modelos preditivos
-- Integração entre tecnologia, processos e necessidades de negócio
-- Melhoria contínua
-
----
-
-## Formação em destaque
-
-- **Mestrado em Ciência da Computação — Inteligência Computacional** — UFJF *(em andamento)*
+- **Mestrado em Ciência da Computação — UFJF** *(em andamento)*
 - **Pós-graduação em Ciência de Dados**
 - **Pós-graduação em Gestão de Serviços de TIC**
 - **Pós-graduação em Banco de Dados**
-- **Formação em Gestão de Tecnologia da Informação**
+- **Formação superior em Gestão de Tecnologia da Informação**
+
+## Contato e projetos
+
+- 🌐 **[CDMF-Lab](https://www.cdmf.ia.br)** — pesquisa aplicada, soluções analíticas e conteúdos sobre tecnologia e mercado financeiro
+- 💻 **[GitHub](https://github.com/alvarobonifacio1980?tab=repositories)** — repositórios e documentação técnica
 
 ---
 
-## Contato
-
-- **CDMF-Lab:** https://www.cdmf.ia.br
-- **GitHub:** https://github.com/alvarobonifacio1980
-
----
-
-*Portfólio em evolução contínua, acompanhando projetos de pesquisa, Data Science, Analytics e Inteligência Artificial.*
+*Projetos acadêmicos, educacionais e de pesquisa aplicada. Aplicações financeiras não constituem recomendação de investimento.*
