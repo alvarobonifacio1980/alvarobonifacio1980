@@ -25,7 +25,7 @@ with sync_playwright() as p:
             try:
                 page.wait_for_function(
                     "needle => document.body.innerText.toLowerCase().includes(needle)",
-                    expected,
+                    arg=expected,
                     timeout=110000,
                 )
             except Exception:
