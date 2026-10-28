@@ -121,5 +121,33 @@ class TestRadar(unittest.TestCase):
         self.assertIn("[CONCILIAÇÃO MESTRADO]", output)
         self.assertIn("Jornada: MEIO PERÍODO", output)
 
+    def test_html_contains_links_and_highlights(self):
+        j = self.sample("Analista de Suporte N2 remoto", "Meio período com service desk")
+        j["score"], j["notes"] = radar.evaluate(j)
+        markup = radar.render_html([j], ["Remotive: 1 candidato"], preview=True)
+        self.assertIn("CONCILIAÇÃO MESTRADO", markup)
+        self.assertIn("href=\"https://example.com/job/123\"", markup)
+        self.assertIn("MEIO PERÍODO", markup)
+        self.assertIn("PRÉVIA", markup)
+        self.assertIn("<html", markup)
+        self.assertIn("Remotive: 1 candidato", markup)
+
+    def test_html_escapes_untrusted_text(self):
+        j = self.sample("Analista de Suporte remoto", "ITIL e chamados")
+        j["company"] = "<script>alert(1)</script>"
+        j["score"], j["notes"] = radar.evaluate(j)
+        markup = radar.render_html([j], [])
+        self.assertNotIn("<script>", markup)
+        self.assertIn("&lt;script&gt;", markup)
+
+    def test_html_keeps_freelancer_last(self):
+        a = self.sample("Analista de Dados", "python sql")
+        b = radar.job("Automação em Python", "Cliente", "Excel e Python", "https://example.com/project/22",
+                      "Freelancer: Workana", "trabalho digital", force_category="Freelancer e projetos")
+        for j in (a,b):
+            j["score"], j["notes"] = radar.evaluate(j)
+        markup = radar.render_html([b,a],[])
+        self.assertLess(markup.index("Dados e negócios</h2>"), markup.index("Freelancer e projetos</h2>"))
+
 if __name__ == "__main__":
     unittest.main()
