@@ -38,6 +38,11 @@ Abra a execução concluída e baixe o artefato **`previa-radar`** em *Artifacts
 
 **Não use `Re-run jobs` em execuções antigas** para conferir atualizações: o GitHub reutiliza o commit original. Inicie um `Run workflow` novo na branch `main`.
 
+
+## Projetos freelancer
+
+Nova categoria: Python, SQL, dados, Power BI, automação, IA, consultoria e treinamentos. Fontes indexadas via Serper: 99Freelas, Workana, Freelancer.com, Fiverr, Vinteconto, GetNinjas, SimplyHired Brasil e Jooble Brasil. As duas últimas são agregadores de vagas, não marketplaces de projetos. Catálogos de prestadores não são considerados oportunidades automaticamente. A busca não acessa áreas privadas das plataformas; resultados públicos podem estar incompletos ou expirados. Validar orçamento, taxa, escopo e modalidade remota antes de enviar proposta. Sem preço divulgado, o sistema informa que o orçamento é desconhecido, sem inventar média por projeto. O relatório reserva até 12 posições a freelancer, 20 a fontes nacionais e oito a APIs internacionais.
+
 ## Classificação
 
 Prioridades: **português e regime CLT**, desde que a vaga seja remota, mas também são consideradas oportunidades em inglês, PJ, temporárias, de consultoria, docência e tutoria. Os anúncios em inglês sofrem redução moderada da nota; exigência explícita de fluência gera desconto maior e **deve ser verificada como possível requisito eliminatório**. A nota é uma triagem preliminar feita por regras de palavras-chave, **não é confirmação de requisitos atendidos**.
