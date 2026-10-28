@@ -30,6 +30,7 @@ SEARCHES = [
     '"Power BI" "remoto"', '"cientista de dados" "remoto"',
 ]
 CATEGORIES = {
+    "Freelancer e projetos": ("freelancer", "freelance", "projeto pontual", "prestação de serviços"),
     "Docência e tutoria": ("professor", "docent", "tutor", "instrutor", "instructor", "trainer", "educator", "conteudista", "teaching", "teacher"),
     "Consultoria": ("consultor", "consultant", "implementation", "implantação", "implanta", "advisory"),
     "Gestão e governança TI": ("gerente", "coordenador", "gestor", "it manager", "service manager", "project manager", "delivery manager", "program manager", "governance", "governança", "pmo", "itil"),
@@ -38,6 +39,7 @@ CATEGORIES = {
     "Administração tecnológica": ("operations coordinator", "technical operations", "administrativo", "administrative", "support manager", "customer success"),
 }
 POSITIVE = {
+    "Freelancer e projetos": ("python", "sql", "power bi", "dashboard", "automacao", "automação", "ia", "chatbot", "data", "consultoria", "site", "treinamento", "etl", "excel", "itil", "projeto"),
     "Docência e tutoria": ("treinamento", "curso", "educa", "ensino", "training", "instructor", "tutor", "computing", "technology"),
     "Consultoria": ("implant", "process", "projeto", "project", "itil", "consult", "cliente", "client", "business", "sistema"),
     "Gestão e governança TI": ("itil", "sla", "service", "project", "governance", "governança", "observability", "gestão", "process", "kpi", "management"),
@@ -91,11 +93,11 @@ def category(title):
             return label
     return None
 
-def job(title, company, desc, url, source, remote, regime="", date="", salary=""):
+def job(title, company, desc, url, source, remote, regime="", date="", salary="", force_category=None):
     title, company, desc = clean(title), clean(company), clean(desc)
     if not title or not company or not url.startswith("https://"):
         return None
-    cat = category(title)
+    cat = force_category or category(title)
     if not cat:
         return None
     return dict(title=title, company=company, description=desc, url=url,
@@ -194,8 +196,75 @@ def serper_indexed():
                 if j: out.append(j)
     return list({j["url"].split("?")[0]: j for j in out}.values())
 
+# Plataformas de prestação de serviços: consulta somente anúncios públicos indexados.
+# SimplyHired e Jooble são buscadores de empregos, não marketplaces de projetos.
+FREELANCE_SOURCES = {
+    "99Freelas": ("site:99freelas.com.br/project/", ('"python" "projeto"','"power bi" dashboard','"automação" excel')),
+    "Workana": ("site:workana.com/job/", ('"python" dados','"power bi" dashboard','"inteligência artificial" automação')),
+    "Freelancer.com.br": ("site:freelancer.com/projects/", ('"python" portuguese','"dashboard" "power bi"')),
+    "Vinteconto": ("site:vinteconto.com.br/", ('"projetos em aberto" tecnologia','"projeto" dashboard')),
+    "Fiverr": ("site:fiverr.com/", ('"buyer request" python automation','"brief" data analysis')),
+    "GetNinjas": ("site:getninjas.com.br/", ('"pedido" "aulas de informática"','"consultoria" "tecnologia"')),
+    "SimplyHired": ("site:br.simplyhired.com/job/", ('"freelancer" "python" remoto','"consultor" remoto projeto')),
+    "Jooble": ("site:br.jooble.org/jdp/", ('"freelancer" "power bi" remoto','"consultor" projeto remoto')),
+}
+FREELANCE_SKILLS = (
+    "python", "sql", "power bi", "dashboard", "dados", "analise", "análise",
+    "automacao", "automação", "excel", "chatbot", "inteligencia artificial",
+    "inteligência artificial", "machine learning", "curso", "treinamento",
+    "itil", "consultoria de ti", "site", "etl", "api", "business intelligence"
+)
+
+def freelance_indexed():
+    secret = os.getenv("SERPER_API_KEY")
+    if not secret:
+        raise RuntimeError("SERPER_API_KEY não configurada")
+    out = {}
+    for source, (domain, terms) in FREELANCE_SOURCES.items():
+        for term in terms:
+            data = fetch_json("https://google.serper.dev/search", method="POST",
+                payload={"q":domain+" "+term,"gl":"br","hl":"pt-br","num":10,"tbs":"qdr:m"},
+                headers={"X-API-KEY":secret,"Content-Type":"application/json"})
+            for row in data.get("organic",[]):
+                link = row.get("link") or ""
+                title = clean(row.get("title"))
+                desc = clean(row.get("snippet"))
+                raw = norm(title+" "+desc)
+                if not link.startswith("https://") or not any(norm(w) in raw for w in FREELANCE_SKILLS):
+                    continue
+                if any(w in " "+raw+" " for w in (" presencial ", " hibrido ", " hibrida ", " hybrid ", " onsite ")):
+                    continue
+                parsed = urllib.parse.urlsplit(link)
+                path = parsed.path.lower()
+                # Remover páginas de freelancers que oferecem serviços e landing pages.
+                if source == "99Freelas" and "/project/" not in path: continue
+                if source == "Workana" and "/job/" not in path: continue
+                if source == "Freelancer.com.br" and "/projects/" not in path: continue
+                if source == "SimplyHired" and "/job/" not in path: continue
+                if source == "Jooble" and "/jdp/" not in path: continue
+                if source in ("Vinteconto","Fiverr","GetNinjas"):
+                    # Essas fontes em geral expõem catálogos de prestadores,
+                    # não demandas verificáveis; não transformar catálogo em vaga.
+                    if not any(x in raw for x in ("preciso de freelancer","projeto em aberto","contratar freelancer","solicito proposta")):
+                        continue
+                # Remoto é inerente a várias tarefas digitais, mas precisa
+                # ser validado com o contratante antes da candidatura.
+                j = job(title, "Contratante via "+source,desc,link,
+                        "Freelancer: "+source,
+                        "trabalho digital; confirmar execução 100% remota",
+                        regime="Projeto/serviço",force_category="Freelancer e projetos")
+                if j:
+                    out[canonical_url(link)] = j
+    return list(out.values())
+
 def fingerprint(j):
+    if j["category"] == "Freelancer e projetos" or j["company"] == "Empresa a confirmar":
+        return "url|" + canonical_url(j["url"])
     return norm(j["company"]) + "|" + norm(j["title"])
+
+def canonical_url(url):
+    parts = urllib.parse.urlsplit(url)
+    return parts.netloc.lower().removeprefix("www.") + parts.path.rstrip("/").lower()
 
 def evaluate(j):
     title, desc = norm(j["title"]), norm(j["description"])
@@ -208,7 +277,7 @@ def evaluate(j):
     remote = 15 if "compatível" in j["remote"] or "geografia" in j["remote"] else 7
     seniority = 10 if any(k in title for k in ("senior","senior","sr","gerente","manager","consultor","especialista")) else 8
     if any(w in norm(j["regime"]) for w in ("full time", "tempo integral", "clt")): seniority += 3
-    goals = {"Docência e tutoria":10,"Consultoria":9,"Gestão e governança TI":10,"Dados e negócios":9,"IA e ciência de dados":7,"Administração tecnológica":8}[cat]
+    goals = {"Freelancer e projetos":10,"Docência e tutoria":10,"Consultoria":9,"Gestão e governança TI":10,"Dados e negócios":9,"IA e ciência de dados":7,"Administração tecnológica":8}[cat]
     penalty = 0
     notes = []
     if any(x in desc for x in ENGLISH_STRONG):
@@ -222,11 +291,13 @@ def evaluate(j):
         notes.append("anúncio em inglês; proficiência a confirmar")
     else:
         notes.append("anúncio em português ou idioma não determinado")
-    if "validar" in j["remote"]: notes.append("remoto ainda não confirmado no texto integral: não priorizar antes de conferir")
+    if "validar" in j["remote"] or "confirmar" in j["remote"]: notes.append("remoto ainda não confirmado; validar antes de propor")
     score = max(0,min(99,exp+tech+remote+seniority+goals-penalty))
     return score, "; ".join(notes)
 
 def salary_text(j):
+    if j["category"] == "Freelancer e projetos":
+        return ("Orçamento anunciado: " + j["salary"] + " (validar no projeto)" if j["salary"] else "Orçamento não divulgado; sem média verificável comparável por projeto.")
     if j["salary"]:
         return "Salário anunciado: "+j["salary"]+" (confirmar moeda/período na vaga)"
     cat = j["category"]
@@ -278,7 +349,7 @@ def main():
         print("Já houve envio hoje; não enviar novamente.")
         return
     sources, found, ok = [], [], 0
-    for name,fn in (("Remotive",remotive),("Himalayas",himalayas),("Jobicy",jobicy),("Google indexado (LinkedIn/Gupy/Glassdoor/Indeed/Remotar/Lever/Greenhouse)",serper_indexed)):
+    for name,fn in (("Remotive",remotive),("Himalayas",himalayas),("Jobicy",jobicy),("Google indexado (LinkedIn/Gupy/Glassdoor/Indeed/Remotar/Lever/Greenhouse)",serper_indexed),("Freelancers (99Freelas/Workana/Freelancer/Vinteconto/Fiverr/GetNinjas/SimplyHired/Jooble)",freelance_indexed)):
         try:
             jobs=fn()
             found.extend(jobs); sources.append(f"{name}: {len(jobs)} candidatos")
@@ -297,14 +368,16 @@ def main():
         seen.add(k); chosen.append(j)
     # Os anúncios brasileiros são prioritários, em vez de serem suplantados
     # pela quantidade de anúncios internacionais de uma única API.
-    local = [j for j in chosen if j["source"].startswith("Busca indexada:")]
-    international = [j for j in chosen if not j["source"].startswith("Busca indexada:")]
+    freelance = [j for j in chosen if j["category"] == "Freelancer e projetos"]
+    local = [j for j in chosen if j["source"].startswith("Busca indexada:") and j["category"] != "Freelancer e projetos"]
+    international = [j for j in chosen if not j["source"].startswith(("Busca indexada:","Freelancer:")) and j["category"] != "Freelancer e projetos"]
     def sortkey(j):
         return ("anúncio em inglês" in j["notes"] or "exige inglês" in j["notes"],
                 -j["score"], j["company"])
     local.sort(key=sortkey)
     international.sort(key=sortkey)
-    chosen = local[:25] + international[:10]
+    freelance.sort(key=sortkey)
+    chosen = local[:20] + freelance[:12] + international[:8]
     source_counts = {}
     for selected in chosen:
         name = selected["source"]
