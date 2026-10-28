@@ -48,5 +48,39 @@ class TestRadar(unittest.TestCase):
             with patch.object(radar, "fetch_json", side_effect=fake):
                 self.assertEqual(radar.serper_indexed(), [])
 
+    def test_freelancer_score_and_budget(self):
+        j = radar.job("Automação em Python", "Contratante via Workana",
+                      "Preciso dashboard automação Python dados SQL",
+                      "https://www.workana.com/job/automacao-python-123",
+                      "Freelancer: Workana", "trabalho digital; confirmar execução 100% remota",
+                      force_category="Freelancer e projetos")
+        self.assertEqual(j["category"], "Freelancer e projetos")
+        self.assertIn("Orçamento não divulgado", radar.salary_text(j))
+        self.assertIsNotNone(radar.evaluate(j))
+
+    def test_freelance_sources_are_queried(self):
+        from unittest.mock import patch
+        queries = []
+        def fake(url, **kwargs):
+            queries.append(kwargs["payload"]["q"])
+            return {"organic":[]}
+        with patch.dict("os.environ", {"SERPER_API_KEY":"test-key"}):
+            with patch.object(radar, "fetch_json", side_effect=fake):
+                self.assertEqual(radar.freelance_indexed(),[])
+        for domain in ("99freelas.com.br","workana.com","freelancer.com",
+                       "fiverr.com","getninjas.com.br","vinteconto.com.br",
+                       "br.simplyhired.com","br.jooble.org"):
+            self.assertTrue(any(domain in q for q in queries), domain)
+
+    def test_catalog_is_not_mistaken_for_project(self):
+        from unittest.mock import patch
+        def fake(url, **kwargs):
+            return {"organic":[{"title":"Especialista Python - contratação",
+                 "snippet":"Oferta de serviço de programação em Python e Excel",
+                 "link":"https://www.fiverr.com/someone/python-excel"}]}
+        with patch.dict("os.environ", {"SERPER_API_KEY":"test-key"}):
+            with patch.object(radar,"fetch_json",side_effect=fake):
+                self.assertEqual(radar.freelance_indexed(),[])
+
 if __name__ == "__main__":
     unittest.main()
