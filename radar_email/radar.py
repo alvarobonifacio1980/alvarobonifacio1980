@@ -291,10 +291,10 @@ def evaluate(j):
     goals = {"Suporte técnico e aplicações":9,"Freelancer e projetos":10,"Docência e tutoria":10,"Consultoria":9,"Gestão e governança TI":10,"Dados e negócios":9,"IA e ciência de dados":7,"Administração tecnológica":8}[cat]
     penalty = 0
     notes = []
-    if any(x in desc for x in ENGLISH_STRONG):
+    if any(norm(x) in desc for x in ENGLISH_STRONG):
         penalty += 18
         notes.append("exige inglês fluente/avançado: requisito potencialmente eliminatório")
-    elif any(x in desc for x in ENGLISH_MID):
+    elif any(norm(x) in desc for x in ENGLISH_MID):
         penalty += 10
         notes.append("inglês avançado indicado")
     elif len(re.findall(r"\b(the|and|experience|required|with|you|will|work)\b",desc)) >= 5:
