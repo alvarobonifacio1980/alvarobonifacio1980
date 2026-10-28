@@ -41,7 +41,7 @@ Abra a execução concluída e baixe o artefato **`previa-radar`** em *Artifacts
 
 ## Projetos freelancer
 
-Nova categoria: Python, SQL, dados, Power BI, automação, IA, consultoria e treinamentos. Fontes indexadas via Serper: 99Freelas, Workana, Freelancer.com, Fiverr, Vinteconto, GetNinjas, SimplyHired Brasil e Jooble Brasil. As duas últimas são agregadores de vagas, não marketplaces de projetos. Catálogos de prestadores não são considerados oportunidades automaticamente. A busca não acessa áreas privadas das plataformas; resultados públicos podem estar incompletos ou expirados. Validar orçamento, taxa, escopo e modalidade remota antes de enviar proposta. Sem preço divulgado, o sistema informa que o orçamento é desconhecido, sem inventar média por projeto. O relatório reserva até 12 posições a freelancer, 20 a fontes nacionais e oito a APIs internacionais.
+Nova categoria: Python, SQL, dados, Power BI, automação, IA, consultoria e treinamentos. Fontes indexadas via Serper: 99Freelas, Workana, Freelancer.com, Fiverr, Vinteconto, GetNinjas, SimplyHired Brasil e Jooble Brasil. As duas últimas são agregadores de vagas, não marketplaces de projetos. Catálogos de prestadores não são considerados oportunidades automaticamente. A busca não acessa áreas privadas das plataformas; resultados públicos podem estar incompletos ou expirados. Validar orçamento, taxa, escopo e modalidade remota antes de enviar proposta. Sem preço divulgado, o sistema informa que o orçamento é desconhecido, sem inventar média por projeto. O relatório reserva até 20 posições para fontes brasileiras indexadas, oito para APIs internacionais e 12 para freelancer, sempre nesta ordem. A quantidade depende dos resultados elegíveis.
 
 ## Classificação
 
