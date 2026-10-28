@@ -63,7 +63,7 @@ BENCHMARK = {
     "Gestão e governança TI": (14040, "Gerente de Projetos de TI, 42h/sem", "https://www.salario.com.br/profissao/gerente-de-projetos-de-tecnologia-da-informacao-cbo-142520/"),
     "Dados e negócios": (5760, "Analista de BI, 42h/sem", "https://www.salario.com.br/profissao/analista-de-bi-business-intelligence/"),
     "IA e ciência de dados": (10356, "Cientista de Dados, 42h/sem", "https://www.salario.com.br/profissao/cientista-de-dados-data-scientist/"),
-    "Administração tecnológica": (8458, "Analista de Sistemas (aproximação), 42h/sem", "https://www.salario.com.br/profissao/analista-de-sistemas-informatica-cbo-212405/"),
+
 }
 
 def now():
@@ -153,7 +153,7 @@ def serper_indexed():
     if not secret: raise RuntimeError("SERPER_API_KEY não configurada")
     out = []
     for domain in ("site:linkedin.com/jobs/view", "site:gupy.io/jobs", "site:indeed.com.br/viewjob", "site:remotar.com.br/job", "site:jobs.lever.co", "site:boards.greenhouse.io"):
-        for term in SEARCHES[:]:
+        for term in SEARCHES[:3] if "gupy" in domain else SEARCHES[3:5] if "linkedin" in domain else SEARCHES[5:7]:
             data = fetch_json("https://google.serper.dev/search", method="POST",
                 payload={"q":domain+" "+term, "gl":"br","hl":"pt-br","num":10,"tbs":"qdr:m"},
                 headers={"X-API-KEY":secret,"Content-Type":"application/json"})
@@ -181,24 +181,24 @@ def evaluate(j):
     # 15 regime/senioridade, 10 interesse. Notas são aproximadas, não 91 fixo.
     exp = min(35, 17 + 3*sum(1 for w in POSITIVE[cat] if norm(w) in desc))
     tech = min(25, 8 + 3*sum(1 for w in POSITIVE[cat] if norm(w) in title+" "+desc))
-    remote = 15 if "compatível" in j["remote"] or "geografia" in j["remote"] else 8
+    remote = 15 if "compatível" in j["remote"] or "geografia" in j["remote"] else 7
     seniority = 10 if any(k in title for k in ("senior","senior","sr","gerente","manager","consultor","especialista")) else 8
     if any(w in norm(j["regime"]) for w in ("full time", "tempo integral", "clt")): seniority += 3
     goals = {"Docência e tutoria":10,"Consultoria":9,"Gestão e governança TI":10,"Dados e negócios":9,"IA e ciência de dados":7,"Administração tecnológica":8}[cat]
     penalty = 0
     notes = []
     if any(x in desc for x in ENGLISH_STRONG):
-        penalty += 22
+        penalty += 18
         notes.append("exige inglês fluente/avançado: requisito potencialmente eliminatório")
     elif any(x in desc for x in ENGLISH_MID):
-        penalty += 12
+        penalty += 10
         notes.append("inglês avançado indicado")
     elif len(re.findall(r"\b(the|and|experience|required|with|you|will|work)\b",desc)) >= 5:
-        penalty += 7
+        penalty += 5
         notes.append("anúncio em inglês; proficiência a confirmar")
     else:
         notes.append("anúncio em português ou idioma não determinado")
-    if "validar" in j["remote"]: notes.append("remoto ainda não confirmado no texto integral")
+    if "validar" in j["remote"]: notes.append("remoto ainda não confirmado no texto integral: não priorizar antes de conferir")
     score = max(0,min(99,exp+tech+remote+seniority+goals-penalty))
     return score, "; ".join(notes)
 
@@ -206,6 +206,8 @@ def salary_text(j):
     if j["salary"]:
         return "Salário anunciado: "+j["salary"]+" (confirmar moeda/período na vaga)"
     cat = j["category"]
+    if cat not in BENCHMARK:
+        return "Salário não divulgado; referência brasileira comparável não identificada para esta função."
     value,label,url = BENCHMARK[cat]
     amount = f"R$ {value:,.0f}".replace(",","X").replace(".",",").replace("X",".")
     return (f"Referência de mercado: {amount}/mês, média salarial base CLT Brasil, "
@@ -267,7 +269,7 @@ def main():
         if val is None or val[0]<65: continue
         j["score"],j["notes"]=val
         seen.add(k); chosen.append(j)
-    chosen.sort(key=lambda j:(-j["score"],j["source"],j["company"]))
+    chosen.sort(key=lambda j:(-j["score"], "inglês" in j["notes"],j["source"],j["company"]))
     chosen=chosen[:35]
     payload=report(chosen,sources)
     print("Fontes:",sources,"Selecionadas:",len(chosen))
