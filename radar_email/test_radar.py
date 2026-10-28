@@ -149,5 +149,44 @@ class TestRadar(unittest.TestCase):
         markup = radar.render_html([b,a],[])
         self.assertLess(markup.index("Dados e negócios</h2>"), markup.index("Freelancer e projetos</h2>"))
 
+    def test_sorting_by_score_then_date_within_group(self):
+        def make(title, score, day, cat="Dados e negócios"):
+            item = self.sample(title, "SQL e Power BI")
+            item["category"] = cat
+            item["score"] = score
+            item["date"] = day
+            return item
+        records = [
+            make("Analista de Dados remoto A", 75, "2026-10-27"),
+            make("Analista de Dados remoto B", 80, "2026-10-25"),
+            make("Analista de Dados remoto C", 80, "2026-10-28"),
+            make("Analista de Dados remoto D", 80, "não informada"),
+            make("Consultor TI remoto", 65, "2026-10-28", "Consultoria"),
+        ]
+        out = radar.ordered_jobs(records)
+        self.assertEqual([j["title"] for j in out if j["category"] == "Dados e negócios"],
+                         ["Analista de Dados remoto C", "Analista de Dados remoto B",
+                          "Analista de Dados remoto D", "Analista de Dados remoto A"])
+        self.assertEqual(out[0]["category"], "Consultoria")
+
+    def test_500_total_not_category_quota(self):
+        jobs = []
+        for i in range(520):
+            job = self.sample(f"Analista de Dados {i}", "SQL")
+            job["category"] = "Dados e negócios"
+            job["score"] = 70 + (i % 20)
+            job["date"] = "2026-10-28"
+            jobs.append(job)
+        ordered = radar.ordered_jobs(jobs)
+        self.assertEqual(len(ordered), 500)
+        self.assertEqual(ordered[0]["score"], 89)
+        self.assertEqual(sum(j["category"] == "Dados e negócios" for j in ordered), 500)
+
+    def test_published_dates_supported(self):
+        self.assertEqual(radar.formatted_date("1793232000"), "28/10/2026")
+        self.assertEqual(radar.formatted_date("2026-10-28T09:45:00Z"), "28/10/2026")
+        self.assertEqual(radar.formatted_date("2026-10-27"), "27/10/2026")
+        self.assertEqual(radar.formatted_date("não informada"), "não informada")
+
 if __name__ == "__main__":
     unittest.main()
