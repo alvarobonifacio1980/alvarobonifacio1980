@@ -17,16 +17,17 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           persist-credentials: true
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.11'
       - name: Buscar oportunidades e enviar e-mail
         env:
           GMAIL_USER: ${{ secrets.GMAIL_USER }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          SERPER_API_KEY: ${{ secrets.SERPER_API_KEY }}
         run: python radar_email/radar.py
       - name: Salvar controle de vagas enviadas
         run: |
