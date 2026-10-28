@@ -25,6 +25,18 @@ No repositório do perfil, abra **Settings → Secrets and variables → Actions
 
 Para testar: **Actions → Radar remoto por e-mail → Run workflow**. O script não reenvia o relatório se a data atual já estiver registrada em `vistos.json`.
 
+## Conferir o relatório sem enviar e-mail nem consumir o histórico
+
+Acesse **Actions → Radar remoto por e-mail → Run workflow**, com branch `main`. Escolha:
+
+- **`previa_novas` (padrão):** busca vagas que ainda não constam em `vistos.json`, salva relatório em arquivo. Não envia e-mail e não modifica o histórico. Pode retornar nenhuma vaga nova após um envio recente.
+- **`previa_demonstracao`:** busca anúncios atuais incluindo aqueles já apresentados; útil para validar visualmente campos, categorias, salário e notas. **Não representa a reprodução do e-mail anteriormente enviado.** Não envia e-mail, não altera o histórico.
+- **`enviar`:** comportamento normal, com envio SMTP e atualização do histórico apenas em caso de envio; se já houve envio na mesma data, não reenvia.
+
+Abra a execução concluída e baixe o artefato **`previa-radar`** em *Artifacts*, na parte inferior da página *Summary*. Ele contém `previa_radar.txt` e fica disponível por sete dias. Para prévias, a etapa de `git push` não é executada.
+
+**Não use `Re-run jobs` em execuções antigas** para conferir atualizações: o GitHub reutiliza o commit original. Inicie um `Run workflow` novo na branch `main`.
+
 ## Classificação
 
 Prioridades: **português e regime CLT**, desde que a vaga seja remota, mas também são consideradas oportunidades em inglês, PJ, temporárias, de consultoria, docência e tutoria. Os anúncios em inglês sofrem redução moderada da nota; exigência explícita de fluência gera desconto maior e **deve ser verificada como possível requisito eliminatório**. A nota é uma triagem preliminar feita por regras de palavras-chave, **não é confirmação de requisitos atendidos**.
