@@ -390,6 +390,52 @@ def ordered_jobs(jobs):
         grouped.extend(items)
     return grouped[:MAX_TOTAL_JOBS]
 
+def alignment_reasons(j):
+    """Explicação baseada apenas nas evidências identificadas pela triagem."""
+    cat = j["category"]
+    title = norm(j["title"])
+    desc = norm(j["description"])
+    source_indexed = j["source"].startswith("Busca indexada:")
+    strong, caution = [], []
+    hits = []
+    for term in POSITIVE[cat]:
+        normalized = norm(term)
+        if len(normalized) < 3 or normalized in ("data", "site", "ia", "api"):
+            continue
+        if normalized in title + " " + desc and normalized not in hits:
+            hits.append(normalized)
+    strong.append("Cargo alinhado à área de " + cat.lower())
+    if hits:
+        strong.append("Termos técnicos relacionados ao perfil: " + ", ".join(hits[:4]))
+    shift = schedule_info(j)[0]
+    if shift in ("MEIO PERÍODO", "HORÁRIO FLEXÍVEL", "HORÁRIO ALTERNATIVO"):
+        strong.append("Jornada potencialmente conciliável: " + shift.lower())
+    if j.get("salary"):
+        strong.append("Remuneração ou orçamento informado no anúncio")
+    if source_indexed:
+        caution.append("Resumo indexado: requisitos detalhados e empresa ainda precisam de confirmação")
+    if "validar" in j["remote"] or "confirmar" in j["remote"]:
+        caution.append("Modalidade 100% remota não verificada no anúncio completo")
+    if shift == "NÃO INFORMADO":
+        caution.append("Carga horária não informada")
+    elif shift == "ESCALA A CONFIRMAR":
+        caution.append("Escala de trabalho precisa ser confirmada")
+    elif shift == "TEMPO INTEGRAL":
+        caution.append("Jornada integral pode dificultar a conciliação com o mestrado")
+    notes = j.get("notes", "")
+    if "exige inglês fluente" in notes:
+        caution.append("Exigência de inglês fluente/avançado; confirmar nível requerido")
+    elif "inglês avançado" in notes:
+        caution.append("Inglês avançado citado; confirmar requisito")
+    elif "anúncio em inglês" in notes:
+        caution.append("Anúncio em inglês; exigência de fluência ainda não determinada")
+    if not hits:
+        caution.append("Competências técnicas não detalhadas no texto disponível")
+    if not j.get("salary"):
+        caution.append("Remuneração da oportunidade não divulgada")
+    return strong[:4], caution[:4]
+
+
 def report(jobs,sources):
     lines = ["RADAR DE OPORTUNIDADES — "+now().strftime("%d/%m/%Y"), "",
              "Triagem preliminar; cargos e requisitos devem ser validados no anúncio.",
@@ -405,6 +451,8 @@ def report(jobs,sources):
             lines += [f"{destaque}{j['score']}/100 | {j['title']} | {j['company']}",
                       f"Origem: {j['source']} | Modalidade: {j['remote']} | Contrato: {j['regime']} | Publicação: {formatted_date(j['date'])}",
                       "Jornada: "+schedule_info(j)[0]+" — "+schedule_info(j)[1],
+                      "Pontos favoráveis: "+"; ".join(alignment_reasons(j)[0]),
+                      "Pontos de atenção: "+"; ".join(alignment_reasons(j)[1]),
                       "Avaliação de idioma: "+j["notes"], "Remuneração: "+salary_text(j),
                       "Candidatura: "+j["url"], ""]
     lines += ["COBERTURA DAS FONTES", *sources,
@@ -414,7 +462,7 @@ def report(jobs,sources):
     return "\n".join(lines)
 
 
-def render_html(jobs, sources, preview=False, include_seen=False):
+def render_html(jobs, sources, preview=False, include_seen=False, interactive=False):
     """HTML para Gmail e prévia local. Usa estilos inline e URLs validadas."""
     esc = lambda value: html.escape(str(value or ""), quote=True)
     def safe_link(url):
@@ -459,11 +507,35 @@ def render_html(jobs, sources, preview=False, include_seen=False):
     pieces.append('</tr></table></td></tr>')
     if not jobs:
         pieces.append('<tr><td style="padding:20px 24px;color:#53627a">Nenhuma vaga nova elegível identificada nas fontes acessíveis.</td></tr>')
+    if interactive:
+        source_options = sorted(set(j["source"] for j in jobs))
+        pieces.append('<tr><td style="padding:10px 24px 20px"><div role="group" aria-label="Filtros de oportunidades" '
+                      'style="padding:14px;background:#edf3fb;border-radius:8px">'
+                      '<strong style="display:block;margin-bottom:10px">Filtrar oportunidades</strong>'
+                      '<label>Conciliação <select id="f-conc"><option value="">Todas</option><option value="sim">Meio período / flexível / alternativo</option></select></label> '
+                      '<label>Fonte <select id="f-source"><option value="">Todas as fontes</option>')
+        for src in source_options:
+            pieces.append('<option value="'+esc(src)+'">'+esc(src)+'</option>')
+        pieces.append('</select></label> <label>Nota mínima <input id="f-score" type="number" min="0" max="100" '
+                      'value="0" style="width:55px"></label> '
+                      '<label>Publicação <select id="f-date"><option value="0">Qualquer data</option>'
+                      '<option value="7">Últimos 7 dias</option><option value="30">Últimos 30 dias</option></select></label> '
+                      '<label>Área <select id="f-cat"><option value="">Todas as áreas</option>')
+        for cat in CATEGORIES:
+            pieces.append('<option value="'+esc(cat)+'">'+esc(cat)+'</option>')
+        pieces.append('</select></label> '
+                      '<button type="button" id="f-reset">Limpar filtros</button>'
+                      '<div id="f-count" aria-live="polite" style="padding-top:9px;font-size:12px"></div>'
+                      '</div></td></tr>')
+    else:
+        pieces.append('<tr><td style="padding:10px 24px 14px;color:#526584;font-size:12px">'
+                      'Navegue pelas áreas abaixo. Para aplicar filtros interativos, abra o arquivo HTML '
+                      'do relatório no navegador.</td></tr>')
     for cat in CATEGORIES:
         group = [j for j in jobs if j["category"] == cat]
         if not group:
             continue
-        pieces.append('<tr><td style="padding:21px 24px 8px">'
+        pieces.append('<tr data-section="'+esc(cat)+'"><td style="padding:21px 24px 8px">'
                       '<h2 style="font-size:17px;margin:0;color:#172c4d;border-bottom:2px solid #d9e5f2;padding-bottom:9px">'
                       +esc(cat)+'</h2></td></tr>')
         for j in group:
@@ -472,12 +544,21 @@ def render_html(jobs, sources, preview=False, include_seen=False):
             score = max(0, min(100, int(j["score"])))
             score_label = f"{score}/100" + (" · Pré-triagem" if j["source"].startswith("Busca indexada:") else "")
             link = safe_link(j["url"])
-            pieces.append('<tr><td style="padding:8px 24px 14px"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" '
+            date = published_timestamp(j.get("date"))
+            attrs = (' data-card="1" data-category="'+esc(cat)+'" data-source="'+esc(j["source"])+
+                     '" data-score="'+str(score)+'" data-date="'+str(int(date) if date >= 0 else -1)+
+                     '" data-conc="'+("sim" if preferred else "nao")+'"')
+            pieces.append('<tr'+attrs+'><td style="padding:8px 24px 14px"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" '
                           'style="border:1px solid #e0e6ee;border-radius:9px"><tr><td style="padding:16px 16px 17px">')
             if preferred:
                 pieces.append('<div style="font-size:11px;font-weight:bold;color:#176744;background:#e8f5ed;padding:6px 9px;display:inline-block;border-radius:4px;margin-bottom:9px">'
                               '★ CONCILIAÇÃO MESTRADO</div>')
             pieces.append('<div style="font-size:13px;color:#42618a;font-weight:bold">'+esc(score_label)+'</div>')
+            good, weak = alignment_reasons(j)
+            pieces.append('<div style="font-size:12px;line-height:1.45;padding:8px 0 11px">'
+                          '<div style="color:#176744"><strong>Pontos fortes:</strong> '+esc("; ".join(good))+'</div>'
+                          '<div style="color:#895d25;margin-top:5px"><strong>Pontos de atenção:</strong> '+
+                          esc("; ".join(weak))+'</div></div>')
             pieces.append('<h3 style="font-size:17px;line-height:1.3;margin:7px 0 4px;color:#172c4d">'+esc(j["title"])+'</h3>')
             pieces.append('<div style="font-size:14px;color:#3e516e;margin-bottom:12px">'+esc(j["company"])+'</div>')
             fields = (
@@ -506,6 +587,39 @@ def render_html(jobs, sources, preview=False, include_seen=False):
                   'As médias salariais são referências por ocupação, não ofertas das empresas. '
                   'Este relatório não realiza candidaturas automaticamente.</p>'
                   '</td></tr></table></td></tr></table></body></html>')
+    if interactive:
+        # O JS fica SOMENTE no arquivo aberto no navegador; nunca no corpo do Gmail.
+        script = """<script>
+(function () {
+ const $=id=>document.getElementById(id);
+ const cards=[...document.querySelectorAll('[data-card]')];
+ const update=()=>{
+   const conc=$('f-conc').value,src=$('f-source').value,score=Number($('f-score').value||0);
+   const days=Number($('f-date').value||0),cat=$('f-cat').value;
+   const today=Math.floor(Date.now()/1000);let shown=0;
+   cards.forEach(row=>{
+     const date=Number(row.dataset.date);
+     const visible=(!conc||row.dataset.conc===conc) && (!src||row.dataset.source===src)
+       && Number(row.dataset.score)>=score && (!cat||row.dataset.category===cat)
+       && (!days||(date>=0 && date>=today-days*86400 && date<=today+86400));
+     row.style.display=visible?'':'none';if(visible)shown++;
+   });
+   document.querySelectorAll('[data-section]').forEach(row=>{
+     row.style.display=cards.some(c=>c.dataset.category===row.dataset.section&&c.style.display!=='none')?'':'none';
+   });
+   $('f-count').textContent=shown+' de '+cards.length+' oportunidades exibidas';
+ };
+ ['f-conc','f-source','f-score','f-date','f-cat'].forEach(id=>{
+   $(id).addEventListener('input',update);$(id).addEventListener('change',update);
+ });
+ $('f-reset').addEventListener('click',()=>{
+   ['f-conc','f-source','f-cat'].forEach(id=>$(id).value='');
+   $('f-score').value='0';$('f-date').value='0';update();
+ });
+ update();
+})();
+</script>"""
+        pieces.insert(-1, script)
     return "".join(pieces)
 
 def email(report_text, report_html):
@@ -558,6 +672,7 @@ def main():
     ))
     payload=report(chosen,sources)
     html_payload=render_html(chosen,sources,preview=preview,include_seen=include_seen)
+    interactive_payload=render_html(chosen,sources,preview=preview,include_seen=include_seen,interactive=True)
     print("Fontes:",sources,"Selecionadas:",len(chosen))
     if preview:
         mode = "DEMONSTRAÇÃO (inclui vagas já apresentadas)" if include_seen else "PRÉVIA (somente vagas ainda não apresentadas)"
@@ -566,8 +681,10 @@ def main():
         output = ROOT / "previa_radar.txt"
         output.write_text(text, encoding="utf-8")
         (ROOT / "previa_radar.html").write_text(html_payload,encoding="utf-8")
+        (ROOT / "radar_interativo.html").write_text(interactive_payload,encoding="utf-8")
         print(f"Prévia salva em {output}; sem SMTP e sem alterar vistos.json")
         return
+    (ROOT / "radar_interativo.html").write_text(interactive_payload,encoding="utf-8")
     email(payload,html_payload)
     state["seen"]=sorted(set(state.get("seen",[])) | {fingerprint(j) for j in chosen})
     state["last_email_date"]=today
