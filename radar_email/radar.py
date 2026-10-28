@@ -278,7 +278,7 @@ def main():
         print("Já houve envio hoje; não enviar novamente.")
         return
     sources, found, ok = [], [], 0
-    for name,fn in (("Remotive",remotive),("Himalayas",himalayas),("Jobicy",jobicy),("Google indexado (LinkedIn/Gupy/Indeed/Remotar/Lever/Greenhouse)",serper_indexed)):
+    for name,fn in (("Remotive",remotive),("Himalayas",himalayas),("Jobicy",jobicy),("Google indexado (LinkedIn/Gupy/Glassdoor/Indeed/Remotar/Lever/Greenhouse)",serper_indexed)):
         try:
             jobs=fn()
             found.extend(jobs); sources.append(f"{name}: {len(jobs)} candidatos")
@@ -295,8 +295,23 @@ def main():
         if val is None or val[0]<65: continue
         j["score"],j["notes"]=val
         seen.add(k); chosen.append(j)
-    chosen.sort(key=lambda j:(-j["score"], "inglês" in j["notes"],j["source"],j["company"]))
-    chosen=chosen[:35]
+    # Os anúncios brasileiros são prioritários, em vez de serem suplantados
+    # pela quantidade de anúncios internacionais de uma única API.
+    local = [j for j in chosen if j["source"].startswith("Busca indexada:")]
+    international = [j for j in chosen if not j["source"].startswith("Busca indexada:")]
+    def sortkey(j):
+        return ("anúncio em inglês" in j["notes"] or "exige inglês" in j["notes"],
+                -j["score"], j["company"])
+    local.sort(key=sortkey)
+    international.sort(key=sortkey)
+    chosen = local[:25] + international[:10]
+    source_counts = {}
+    for selected in chosen:
+        name = selected["source"]
+        source_counts[name] = source_counts.get(name, 0) + 1
+    sources.append("Vagas exibidas por fonte: " + ", ".join(
+        f"{name}: {count}" for name, count in sorted(source_counts.items())
+    ))
     payload=report(chosen,sources)
     print("Fontes:",sources,"Selecionadas:",len(chosen))
     if preview:
