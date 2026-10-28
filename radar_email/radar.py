@@ -36,6 +36,7 @@ CATEGORIES = {
     "Dados e negócios": ("data analyst", "analista de dados", "analista de negócios", "business analyst", "business intelligence", "analytics", "power bi", "bi analyst"),
     "IA e ciência de dados": ("data scientist", "cientista de dados", "machine learning", "ai engineer", "inteligência artificial", "ml engineer"),
     "Administração tecnológica": ("operations coordinator", "technical operations", "administrativo", "administrative", "support manager", "customer success"),
+    "Suporte técnico e aplicações": ("analista de suporte", "tecnico de suporte", "técnico de suporte", "suporte técnico", "suporte de sistemas", "suporte a aplicações", "suporte n1", "suporte n2", "suporte n3", "help desk", "service desk", "technical support", "application support", "support analyst", "support engineer", "it support"),
     "Freelancer e projetos": ("freelancer", "freelance", "projeto pontual", "prestação de serviços"),
 }
 POSITIVE = {
@@ -46,6 +47,7 @@ POSITIVE = {
     "Dados e negócios": ("sql", "power bi", "python", "pandas", "etl", "dashboard", "analytics", "business"),
     "IA e ciência de dados": ("python", "machine learning", "deep learning", "data", "analytics", "scikit", "statistic", "time series"),
     "Administração tecnológica": ("process", "operations", "gestão", "itil", "sla", "service", "coordination"),
+    "Suporte técnico e aplicações": ("itil", "sla", "service desk", "help desk", "troubleshooting", "windows", "linux", "suporte", "incidente", "incident", "sql", "sistema", "application", "customer", "ticket"),
 }
 ENGLISH_STRONG = ("fluent english", "english fluency", "english c1", "english c2", "native english", "fluent in english", "advanced english required", "fluência em inglês")
 ENGLISH_MID = ("advanced english", "english required", "english b2", "professional english", "inglês avançado", "inglês fluente")
@@ -120,7 +122,7 @@ def remotive():
 
 def himalayas():
     out = []
-    for term in ("project manager", "data analyst", "consultant", "instructor", "data scientist", "business analyst"):
+    for term in ("project manager", "data analyst", "consultant", "instructor", "data scientist", "business analyst", "technical support", "service desk"):
         data = fetch_json("https://himalayas.app/jobs/api/search?" + urllib.parse.urlencode({"q":term,"country":"BR","page":1}))
         for row in data.get("jobs",[]):
             regions = [norm(x.get("alpha2") or x.get("name")) if isinstance(x,dict) else norm(x) for x in row.get("locationRestrictions") or []]
@@ -158,16 +160,16 @@ def serper_indexed():
         "LinkedIn": ("site:linkedin.com/jobs/view/", [
             '"gerente de projetos" remoto Brasil', '"gestão de serviços" remoto',
             '"analista de negócios" remoto', '"analista de dados" remoto',
-            '"professor" tecnologia remoto', '"consultor TI" remoto']),
+            '"professor" tecnologia remoto', '"consultor TI" remoto', '"analista de suporte" remoto', '"service desk" remoto meio período', '"suporte N2" remoto']),
         "Gupy": ("site:gupy.io/jobs/", [
             '"gestão de TI" remoto', '"analista de dados" remoto',
             '"consultor" implantação remoto', '"tutor" EAD remoto',
-            '"governança" remoto', '"Power BI" remoto']),
+            '"governança" remoto', '"Power BI" remoto', '"analista de suporte" remoto', '"suporte de sistemas" remoto', '"suporte técnico" home office']),
         "Glassdoor": ("site:glassdoor.com.br/Job/", [
             '"analista de dados" remoto', '"gerente de projetos" remoto',
-            '"consultor de TI" remoto', '"professor tecnologia" remoto']),
+            '"consultor de TI" remoto', '"professor tecnologia" remoto', '"help desk" remoto', '"suporte técnico" meio período remoto']),
         "Indeed": ("site:br.indeed.com/viewjob", [
-            '"gerente de projetos" remoto', '"analista de negócios" remoto']),
+            '"gerente de projetos" remoto', '"analista de negócios" remoto', '"suporte técnico" remoto meio período']),
         "Remotar": ("site:remotar.com.br/job/", [
             '"gerente" TI', '"analista de dados"']),
         "Carreiras corporativas": ("(site:jobs.lever.co OR site:job-boards.greenhouse.io)", [
@@ -286,7 +288,7 @@ def evaluate(j):
         seniority = 10 if any(k in title for k in ("senior","sr","gerente","manager","consultor","especialista")) else 8
         if any(w in norm(j["regime"]) for w in ("full time", "tempo integral", "clt")):
             seniority += 3
-    goals = {"Freelancer e projetos":10,"Docência e tutoria":10,"Consultoria":9,"Gestão e governança TI":10,"Dados e negócios":9,"IA e ciência de dados":7,"Administração tecnológica":8}[cat]
+    goals = {"Suporte técnico e aplicações":9,"Freelancer e projetos":10,"Docência e tutoria":10,"Consultoria":9,"Gestão e governança TI":10,"Dados e negócios":9,"IA e ciência de dados":7,"Administração tecnológica":8}[cat]
     penalty = 0
     notes = []
     if any(x in desc for x in ENGLISH_STRONG):
