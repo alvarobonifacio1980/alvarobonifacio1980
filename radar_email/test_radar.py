@@ -212,5 +212,29 @@ class TestRadar(unittest.TestCase):
             with patch.object(radar.smtplib, "SMTP_SSL", return_value=fake):
                 radar.email("Texto simples", "<html><body>HTML</body></html>")
 
+    def test_alignment_reasons_are_grounded(self):
+        j = self.sample("Analista de Dados", "Python SQL Power BI. Inglês avançado obrigatório.")
+        j["score"],j["notes"]=radar.evaluate(j)
+        good, caution = radar.alignment_reasons(j)
+        self.assertTrue(any("sql" in x for x in good))
+        self.assertTrue(any("Inglês avançado" in x for x in caution))
+        self.assertTrue(any("Carga horária não informada" in x for x in caution))
+
+    def test_interactive_filters_only_in_browser_report(self):
+        j = self.sample("Analista de Suporte N2 remoto", "Meio período com service desk")
+        j["score"],j["notes"]=radar.evaluate(j)
+        email_html = radar.render_html([j], ["Remotive: 1 candidato"])
+        interactive = radar.render_html([j], ["Remotive: 1 candidato"], interactive=True)
+        self.assertNotIn("<script", email_html)
+        self.assertNotIn("id=\"f-source\"", email_html)
+        self.assertIn("id=\"f-source\"", interactive)
+        self.assertIn("id=\"f-conc\"", interactive)
+        self.assertIn("id=\"f-date\"", interactive)
+        self.assertIn("id=\"f-score\"", interactive)
+        self.assertIn("data-card=\"1\"", interactive)
+        self.assertIn("<script>", interactive)
+        self.assertIn("Pontos fortes:", email_html)
+        self.assertIn("Pontos de atenção:", email_html)
+
 if __name__ == "__main__":
     unittest.main()
