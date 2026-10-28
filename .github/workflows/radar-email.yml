@@ -4,6 +4,16 @@ on:
     # 08:00 no Brasil (America/Sao_Paulo = UTC-3)
     - cron: '0 11 * * 1-5'
   workflow_dispatch:
+    inputs:
+      modo:
+        description: 'Enviar ou gerar prévia sem envio/alteração do histórico'
+        type: choice
+        required: true
+        default: previa_novas
+        options:
+          - previa_novas
+          - previa_demonstracao
+          - enviar
 
 permissions:
   contents: write
@@ -28,8 +38,19 @@ jobs:
           GMAIL_USER: ${{ secrets.GMAIL_USER }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
           SERPER_API_KEY: ${{ secrets.SERPER_API_KEY }}
+          RADAR_PREVIEW: ${{ github.event_name == 'workflow_dispatch' && inputs.modo != 'enviar' }}
+          PREVIEW_INCLUDE_SEEN: ${{ github.event_name == 'workflow_dispatch' && inputs.modo == 'previa_demonstracao' }}
         run: python radar_email/radar.py
+      - name: Disponibilizar prévia para download
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.modo != 'enviar' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: previa-radar
+          path: radar_email/previa_radar.txt
+          if-no-files-found: error
+          retention-days: 7
       - name: Salvar controle de vagas enviadas
+        if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.modo == 'enviar') }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
