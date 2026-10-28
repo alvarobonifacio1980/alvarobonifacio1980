@@ -248,8 +248,10 @@ def email(report_text):
 def main():
     state=json.loads(STATE.read_text(encoding="utf-8")) if STATE.exists() else {"seen":INITIAL_SEEN, "last_email_date":""}
     today=now().strftime("%Y-%m-%d")
-    if state.get("last_email_date")==today:
-        print("Já houve envio hoje; use uma nova data para novo relatório.")
+    preview = os.getenv("RADAR_PREVIEW", "").strip().lower() == "true"
+    include_seen = preview and os.getenv("PREVIEW_INCLUDE_SEEN", "").strip().lower() == "true"
+    if state.get("last_email_date")==today and not preview:
+        print("Já houve envio hoje; não enviar novamente.")
         return
     sources, found, ok = [], [], 0
     for name,fn in (("Remotive",remotive),("Himalayas",himalayas),("Jobicy",jobicy),("Google indexado (LinkedIn/Gupy/Indeed/Remotar/Lever/Greenhouse)",serper_indexed)):
@@ -264,7 +266,7 @@ def main():
     chosen=[]
     for j in found:
         k=fingerprint(j)
-        if k in seen: continue
+        if k in seen and not include_seen: continue
         val=evaluate(j)
         if val is None or val[0]<65: continue
         j["score"],j["notes"]=val
@@ -273,6 +275,14 @@ def main():
     chosen=chosen[:35]
     payload=report(chosen,sources)
     print("Fontes:",sources,"Selecionadas:",len(chosen))
+    if preview:
+        mode = "DEMONSTRAÇÃO (inclui vagas já apresentadas)" if include_seen else "PRÉVIA (somente vagas ainda não apresentadas)"
+        text = (f"{mode} — NÃO ENVIADO POR E-MAIL, NÃO REGISTRADO NO HISTÓRICO.\n"
+                "Resultado gerado agora; NÃO é reprodução do e-mail de uma execução anterior.\n\n" + payload)
+        output = ROOT / "previa_radar.txt"
+        output.write_text(text, encoding="utf-8")
+        print(f"Prévia salva em {output}; sem SMTP e sem alterar vistos.json")
+        return
     email(payload)
     state["seen"]=sorted(set(state.get("seen",[])) | {fingerprint(j) for j in chosen})
     state["last_email_date"]=today
