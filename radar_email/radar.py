@@ -30,13 +30,13 @@ SEARCHES = [
     '"Power BI" "remoto"', '"cientista de dados" "remoto"',
 ]
 CATEGORIES = {
-    "Freelancer e projetos": ("freelancer", "freelance", "projeto pontual", "prestação de serviços"),
     "Docência e tutoria": ("professor", "docent", "tutor", "instrutor", "instructor", "trainer", "educator", "conteudista", "teaching", "teacher"),
     "Consultoria": ("consultor", "consultant", "implementation", "implantação", "implanta", "advisory"),
     "Gestão e governança TI": ("gerente", "coordenador", "gestor", "it manager", "service manager", "project manager", "delivery manager", "program manager", "governance", "governança", "pmo", "itil"),
     "Dados e negócios": ("data analyst", "analista de dados", "analista de negócios", "business analyst", "business intelligence", "analytics", "power bi", "bi analyst"),
     "IA e ciência de dados": ("data scientist", "cientista de dados", "machine learning", "ai engineer", "inteligência artificial", "ml engineer"),
     "Administração tecnológica": ("operations coordinator", "technical operations", "administrativo", "administrative", "support manager", "customer success"),
+    "Freelancer e projetos": ("freelancer", "freelance", "projeto pontual", "prestação de serviços"),
 }
 POSITIVE = {
     "Freelancer e projetos": ("python", "sql", "power bi", "dashboard", "automacao", "automação", "ia", "chatbot", "data", "consultoria", "site", "treinamento", "etl", "excel", "itil", "projeto"),
@@ -270,13 +270,22 @@ def evaluate(j):
     title, desc = norm(j["title"]), norm(j["description"])
     if any(norm(x) in desc for x in HARD_BLOCK): return None
     cat = j["category"]
-    # 35 pontos pela experiência relevante, 25 requisitos técnicos, 15 remoto,
-    # 15 regime/senioridade, 10 interesse. Notas são aproximadas, não 91 fixo.
-    exp = min(35, 17 + 3*sum(1 for w in POSITIVE[cat] if norm(w) in desc))
-    tech = min(25, 8 + 3*sum(1 for w in POSITIVE[cat] if norm(w) in title+" "+desc))
-    remote = 15 if "compatível" in j["remote"] or "geografia" in j["remote"] else 7
-    seniority = 10 if any(k in title for k in ("senior","senior","sr","gerente","manager","consultor","especialista")) else 8
-    if any(w in norm(j["regime"]) for w in ("full time", "tempo integral", "clt")): seniority += 3
+    # Busca indexada: texto curto não permite medir requisitos detalhadamente.
+    # Criar faixa preliminar própria (65-79), SEM declarar elegibilidade confirmada.
+    indexed = j["source"].startswith("Busca indexada:")
+    hits = sum(1 for w in POSITIVE[cat] if norm(w) in title+" "+desc)
+    if indexed:
+        exp = min(35, 26 + min(6, 2*hits))
+        tech = min(25, 15 + min(6, 2*hits))
+        remote = 8
+        seniority = 8
+    else:
+        exp = min(35, 17 + 3*sum(1 for w in POSITIVE[cat] if norm(w) in desc))
+        tech = min(25, 8 + 3*hits)
+        remote = 15 if "compatível" in j["remote"] or "geografia" in j["remote"] else 7
+        seniority = 10 if any(k in title for k in ("senior","sr","gerente","manager","consultor","especialista")) else 8
+        if any(w in norm(j["regime"]) for w in ("full time", "tempo integral", "clt")):
+            seniority += 3
     goals = {"Freelancer e projetos":10,"Docência e tutoria":10,"Consultoria":9,"Gestão e governança TI":10,"Dados e negócios":9,"IA e ciência de dados":7,"Administração tecnológica":8}[cat]
     penalty = 0
     notes = []
@@ -292,7 +301,9 @@ def evaluate(j):
     else:
         notes.append("anúncio em português ou idioma não determinado")
     if "validar" in j["remote"] or "confirmar" in j["remote"]: notes.append("remoto ainda não confirmado; validar antes de propor")
-    score = max(0,min(99,exp+tech+remote+seniority+goals-penalty))
+    score = max(0,min(79 if indexed else 99,exp+tech+remote+seniority+goals-penalty))
+    if indexed:
+        notes.append("PRÉ-TRIAGEM: descrição indexada incompleta; requisitos, empresa e remoto precisam ser confirmados")
     return score, "; ".join(notes)
 
 def salary_text(j):
@@ -377,7 +388,7 @@ def main():
     local.sort(key=sortkey)
     international.sort(key=sortkey)
     freelance.sort(key=sortkey)
-    chosen = local[:20] + freelance[:12] + international[:8]
+    chosen = local[:20] + international[:8] + freelance[:12]
     source_counts = {}
     for selected in chosen:
         name = selected["source"]
