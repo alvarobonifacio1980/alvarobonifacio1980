@@ -370,7 +370,102 @@ def report(jobs,sources):
               "Não há candidatura automática nem garantia de elegibilidade; confira o anúncio original."]
     return "\n".join(lines)
 
-def email(report_text):
+
+def render_html(jobs, sources, preview=False, include_seen=False):
+    """HTML para Gmail e prévia local. Usa estilos inline e URLs validadas."""
+    esc = lambda value: html.escape(str(value or ""), quote=True)
+    def safe_link(url):
+        parts = urllib.parse.urlsplit(str(url or ""))
+        if parts.scheme != "https" or not parts.netloc or parts.username or parts.password:
+            return ""
+        return esc(url)
+    good_shifts = {"MEIO PERÍODO", "HORÁRIO FLEXÍVEL", "HORÁRIO ALTERNATIVO"}
+    count_brazil = sum(j["source"].startswith("Busca indexada:") for j in jobs)
+    count_freelance = sum(j["category"] == "Freelancer e projetos" for j in jobs)
+    count_other = len(jobs) - count_brazil - count_freelance
+    counts = (
+        ("Portais nacionais", count_brazil),
+        ("Internacionais", count_other),
+        ("Freelancer", count_freelance),
+    )
+    pieces = [
+        '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8">',
+        '<meta name="viewport" content="width=device-width,initial-scale=1"></head>',
+        '<body style="margin:0;background:#f3f5f9;color:#17253d;font-family:Arial,Helvetica,sans-serif">',
+        '<div style="display:none;max-height:0;overflow:hidden;color:transparent">Vagas remotas, jornada e aderência ao currículo.</div>',
+        '<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background:#f3f5f9"><tr><td align="center" style="padding:20px 10px">',
+        '<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width:740px;background:#ffffff;border-radius:12px">',
+        '<tr><td style="background:#172c4d;color:#ffffff;padding:27px 24px;border-radius:12px 12px 0 0">',
+        '<div style="font-size:12px;letter-spacing:2px;color:#b9cce9;font-weight:bold">RADAR DE CARREIRA</div>',
+        '<h1 style="font-size:25px;line-height:1.2;margin:10px 0 6px;color:#ffffff">Oportunidades remotas</h1>',
+        '<div style="font-size:14px;color:#d6e3f3">'+esc(now().strftime("%d/%m/%Y"))+'</div></td></tr>',
+    ]
+    if preview:
+        mode = "Demonstração, inclusive vagas já apresentadas" if include_seen else "Somente vagas ainda não apresentadas"
+        pieces += ['<tr><td style="padding:15px 24px;background:#fff4de;color:#684510;font-size:13px">',
+                   '<strong>PRÉVIA — NÃO ENVIADA E NÃO REGISTRADA.</strong> '+esc(mode)+'. Pesquisa atual, não cópia de um e-mail anterior.</td></tr>']
+    pieces.append('<tr><td style="padding:20px 24px 10px">'
+                  '<p style="margin:0 0 14px;font-size:14px;color:#46556c">'
+                  'Prioridade para vagas brasileiras em português, trabalho remoto e oportunidades conciliáveis com o mestrado. '
+                  'Notas são triagens preliminares; confirme os requisitos no anúncio.</p>'
+                  '<table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr>')
+    for label, number in counts:
+        pieces.append('<td style="padding:8px;border:1px solid #e5e9f0;text-align:center">'
+                      '<div style="font-size:23px;font-weight:bold;color:#172c4d">'+str(number)+'</div>'
+                      '<div style="font-size:11px;color:#65758c">'+esc(label)+'</div></td>')
+    pieces.append('</tr></table></td></tr>')
+    if not jobs:
+        pieces.append('<tr><td style="padding:20px 24px;color:#53627a">Nenhuma vaga nova elegível identificada nas fontes acessíveis.</td></tr>')
+    for cat in CATEGORIES:
+        group = [j for j in jobs if j["category"] == cat]
+        if not group:
+            continue
+        pieces.append('<tr><td style="padding:21px 24px 8px">'
+                      '<h2 style="font-size:17px;margin:0;color:#172c4d;border-bottom:2px solid #d9e5f2;padding-bottom:9px">'
+                      +esc(cat)+'</h2></td></tr>')
+        for j in group:
+            shift, explanation = schedule_info(j)
+            preferred = shift in good_shifts
+            score = max(0, min(100, int(j["score"])))
+            score_label = f"{score}/100" + (" · Pré-triagem" if j["source"].startswith("Busca indexada:") else "")
+            link = safe_link(j["url"])
+            pieces.append('<tr><td style="padding:8px 24px 14px"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" '
+                          'style="border:1px solid #e0e6ee;border-radius:9px"><tr><td style="padding:16px 16px 17px">')
+            if preferred:
+                pieces.append('<div style="font-size:11px;font-weight:bold;color:#176744;background:#e8f5ed;padding:6px 9px;display:inline-block;border-radius:4px;margin-bottom:9px">'
+                              '★ CONCILIAÇÃO MESTRADO</div>')
+            pieces.append('<div style="font-size:13px;color:#42618a;font-weight:bold">'+esc(score_label)+'</div>')
+            pieces.append('<h3 style="font-size:17px;line-height:1.3;margin:7px 0 4px;color:#172c4d">'+esc(j["title"])+'</h3>')
+            pieces.append('<div style="font-size:14px;color:#3e516e;margin-bottom:12px">'+esc(j["company"])+'</div>')
+            fields = (
+                ("Fonte",j["source"]), ("Jornada",shift+" — "+explanation),
+                ("Modalidade",j["remote"]),("Regime",j["regime"]),
+                ("Publicação",j["date"]),("Idioma e ressalvas",j.get("notes","")),
+                ("Remuneração / orçamento",salary_text(j)),
+            )
+            for label, value in fields:
+                is_shift = label == "Jornada" and preferred
+                color = "#176744" if is_shift else "#4c5870"
+                pieces.append('<div style="font-size:12px;line-height:1.55;color:'+color+';padding:2px 0">'
+                              '<strong>'+esc(label)+':</strong> '+esc(value)+'</div>')
+            if link:
+                pieces.append('<div style="padding-top:15px">'
+                              '<a href="'+link+'" style="background:#2456a6;color:#ffffff;text-decoration:none;'
+                              'padding:11px 16px;border-radius:6px;font-size:13px;font-weight:bold;display:inline-block">'
+                              'Ver oportunidade</a></div>')
+            pieces.append('</td></tr></table></td></tr>')
+    pieces.append('<tr><td style="padding:16px 24px 24px;border-top:1px solid #e1e7ef">'
+                  '<h2 style="font-size:15px;margin:0 0 9px">Cobertura das fontes</h2>')
+    for item in sources:
+        pieces.append('<div style="font-size:12px;line-height:1.55;color:#53627a">'+esc(item)+'</div>')
+    pieces.append('<p style="font-size:12px;color:#6b7485;line-height:1.55;margin:13px 0 0">'
+                  'Vagas indexadas podem estar desatualizadas. O remoto e a compatibilidade de requisitos precisam ser confirmados. '
+                  'As médias salariais são referências por ocupação, não ofertas das empresas. '
+                  'Este relatório não realiza candidaturas automaticamente.</p>'
+                  '</td></tr></table></td></tr></table></body></html>')
+    return "".join(pieces)
+
+def email(report_text, report_html):
     account=os.getenv("GMAIL_USER")
     password=os.getenv("GMAIL_APP_PASSWORD")
     if not account or not password: raise RuntimeError("Credenciais Gmail ausentes")
@@ -378,6 +473,7 @@ def email(report_text):
     m["From"]=account; m["To"]=TO
     m["Subject"]="Radar de oportunidades remotas — "+now().strftime("%d/%m/%Y")
     m.set_content(report_text)
+    m.add_alternative(report_html, subtype="html")
     with smtplib.SMTP_SSL("smtp.gmail.com",465, timeout=45, context=ssl.create_default_context()) as smtp:
         smtp.login(account,password); smtp.send_message(m)
 
@@ -428,6 +524,7 @@ def main():
         f"{name}: {count}" for name, count in sorted(source_counts.items())
     ))
     payload=report(chosen,sources)
+    html_payload=render_html(chosen,sources,preview=preview,include_seen=include_seen)
     print("Fontes:",sources,"Selecionadas:",len(chosen))
     if preview:
         mode = "DEMONSTRAÇÃO (inclui vagas já apresentadas)" if include_seen else "PRÉVIA (somente vagas ainda não apresentadas)"
@@ -435,9 +532,10 @@ def main():
                 "Resultado gerado agora; NÃO é reprodução do e-mail de uma execução anterior.\n\n" + payload)
         output = ROOT / "previa_radar.txt"
         output.write_text(text, encoding="utf-8")
+        (ROOT / "previa_radar.html").write_text(html_payload,encoding="utf-8")
         print(f"Prévia salva em {output}; sem SMTP e sem alterar vistos.json")
         return
-    email(payload)
+    email(payload,html_payload)
     state["seen"]=sorted(set(state.get("seen",[])) | {fingerprint(j) for j in chosen})
     state["last_email_date"]=today
     STATE.write_text(json.dumps(state,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
