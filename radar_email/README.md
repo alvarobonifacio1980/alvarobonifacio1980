@@ -43,11 +43,15 @@ Abra a execução concluída e baixe o artefato **`previa-radar`** em *Artifacts
 
 Nova categoria: Python, SQL, dados, Power BI, automação, IA, consultoria e treinamentos. Fontes indexadas via Serper: 99Freelas, Workana, Freelancer.com, Fiverr, Vinteconto, GetNinjas, SimplyHired Brasil e Jooble Brasil. As duas últimas são agregadores de vagas, não marketplaces de projetos. Catálogos de prestadores não são considerados oportunidades automaticamente. A busca não acessa áreas privadas das plataformas; resultados públicos podem estar incompletos ou expirados. Validar orçamento, taxa, escopo e modalidade remota antes de enviar proposta. Sem preço divulgado, o sistema informa que o orçamento é desconhecido, sem inventar média por projeto. O relatório reserva até 20 posições para fontes brasileiras indexadas, oito para APIs internacionais e 12 para freelancer, sempre nesta ordem. A quantidade depende dos resultados elegíveis.
 
+## Jornada e conciliação com o mestrado
+
+O radar também pesquisa **suporte técnico e aplicações em níveis N1, N2 e N3**, service desk, help desk, suporte de sistemas e atendimento técnico. Cada vaga mostra um campo **Jornada** com evidência textual: **MEIO PERÍODO**, **HORÁRIO FLEXÍVEL**, **HORÁRIO ALTERNATIVO**, **ESCALA A CONFIRMAR**, **TEMPO INTEGRAL** ou **NÃO INFORMADO**. As três primeiras recebem a marca **[CONCILIAÇÃO MESTRADO]** e um pequeno bônus na nota. Jornada não mencionada não é tratada como flexível. Turnos noturnos, finais de semana e escalas precisam de conferência quanto à compatibilidade real; o sistema não presume conveniência. Quando o texto é apenas o resumo indexado, a classificação também é preliminar. A pesquisa continua restrita a vagas remotas, com prioridades brasileiras e freelancers ao final.
+
 ## Classificação
 
 Prioridades: **português e regime CLT**, desde que a vaga seja remota, mas também são consideradas oportunidades em inglês, PJ, temporárias, de consultoria, docência e tutoria. Os anúncios em inglês sofrem redução moderada da nota; exigência explícita de fluência gera desconto maior e **deve ser verificada como possível requisito eliminatório**. A nota é uma triagem preliminar feita por regras de palavras-chave, **não é confirmação de requisitos atendidos**.
 
-A seleção final reserva até 25 vagas aos resultados brasileiros indexados (LinkedIn, Gupy, Glassdoor, Indeed, Remotar e carreiras), complementados por até dez vagas internacionais. Essa divisão é uma preferência de exibição: os resultados indexados ainda exigem confirmação no anúncio original. O relatório informa a quantidade exibida por fonte.
+A seleção final reserva até 20 vagas de portais brasileiros indexados, até oito vagas internacionais e até 12 projetos freelancers (sempre a última categoria). Essa divisão é uma preferência de exibição: os resultados indexados ainda exigem confirmação no anúncio original. O relatório informa a quantidade exibida por fonte.
 
 As notas variam com a compatibilidade da descrição, requisitos e idioma, em vez de atribuir 91/100 a todos os resultados. Publicações híbridas e presenciais explicitamente obrigatórias são excluídas quando detectadas. Em resultados de busca indexada, a modalidade remota **não fica confirmada** apenas pelo título/snippet; a nota é penalizada e o anúncio deve ser lido antes da candidatura.
 
