@@ -36,5 +36,22 @@ jobs:
           git add radar_email/vistos.json
           if ! git diff --cached --quiet; then
             git commit -m "chore: atualiza histórico do radar por e-mail [skip ci]"
-            git push
+            # O repositório pode receber commits enquanto o radar consulta fontes.
+            # Não force push: preserve alterações externas e tente rebase seguro.
+            for tentativa in 1 2 3; do
+              git fetch origin main
+              if ! git rebase origin/main; then
+                echo "::error::Conflito ao atualizar o histórico: intervenção necessária."
+                git rebase --abort || true
+                exit 1
+              fi
+              if git push origin HEAD:main; then
+                echo "Histórico publicado."
+                exit 0
+              fi
+              echo "Repositório alterado durante o push. Tentativa ${tentativa}/3."
+              sleep 3
+            done
+            echo "::error::Não foi possível publicar o histórico após 3 tentativas."
+            exit 1
           fi
