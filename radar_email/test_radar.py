@@ -82,5 +82,18 @@ class TestRadar(unittest.TestCase):
             with patch.object(radar,"fetch_json",side_effect=fake):
                 self.assertEqual(radar.freelance_indexed(),[])
 
+    def test_indexed_vacancy_no_longer_discarded(self):
+        j = radar.job("Analista de Dados Remoto", "Empresa a confirmar",
+                      "vaga remota em Python SQL, Brasil", 
+                      "https://www.linkedin.com/jobs/view/4483256026",
+                      "Busca indexada: LinkedIn", "remoto indicado no índice; validar anúncio")
+        points, note = radar.evaluate(j)
+        self.assertGreaterEqual(points, 65)
+        self.assertLessEqual(points, 79)
+        self.assertIn("PRÉ-TRIAGEM", note)
+
+    def test_freelancer_category_last(self):
+        self.assertEqual(list(radar.CATEGORIES)[-1], "Freelancer e projetos")
+
 if __name__ == "__main__":
     unittest.main()
