@@ -2,7 +2,7 @@ name: Validar código do radar e-mail
 on:
   push:
     paths:
-      - 'radar_email/*.py'
+      - 'radar_email/**'
       - '.github/workflows/validar-radar-email.yml'
   pull_request:
     paths:
@@ -16,9 +16,11 @@ jobs:
   validar:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.11'
       - name: Compilar Python sem instalar dependências
-        run: python -m py_compile radar_email/radar.py
+        run: |
+          python -m py_compile radar_email/radar.py
+          python -m unittest radar_email.test_radar -v
