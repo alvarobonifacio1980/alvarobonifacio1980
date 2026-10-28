@@ -24,5 +24,29 @@ class TestRadar(unittest.TestCase):
     def test_admin_no_false_salary(self):
         a=self.sample("Operations Coordinator", "process operations")
         self.assertIn("não identificada",radar.salary_text(a))
+    def test_serper_includes_glassdoor(self):
+        from unittest.mock import patch
+        calls = []
+        def fake(url, **kwargs):
+            calls.append(kwargs["payload"]["q"])
+            return {"organic": []}
+        with patch.dict("os.environ", {"SERPER_API_KEY": "fake-test-key"}):
+            with patch.object(radar, "fetch_json", side_effect=fake):
+                result = radar.serper_indexed()
+        self.assertEqual(result, [])
+        self.assertTrue(any("glassdoor.com.br" in q for q in calls))
+        self.assertTrue(any("linkedin.com/jobs/view" in q for q in calls))
+        self.assertTrue(any("gupy.io/jobs" in q for q in calls))
+
+    def test_indexed_hybrid_excluded(self):
+        from unittest.mock import patch
+        def fake(url, **kwargs):
+            return {"organic": [{"title": "Gerente de Projetos - Remoto",
+                "snippet": "Vaga híbrida com presença semanal",
+                "link": "https://www.linkedin.com/jobs/view/123456"}]}
+        with patch.dict("os.environ", {"SERPER_API_KEY": "fake-test-key"}):
+            with patch.object(radar, "fetch_json", side_effect=fake):
+                self.assertEqual(radar.serper_indexed(), [])
+
 if __name__ == "__main__":
     unittest.main()
