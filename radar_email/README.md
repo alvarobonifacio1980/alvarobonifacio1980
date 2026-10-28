@@ -21,7 +21,7 @@ No repositório do perfil, abra **Settings → Secrets and variables → Actions
 
 - `GMAIL_USER`: endereço da conta Gmail remetente.
 - `GMAIL_APP_PASSWORD`: senha de aplicativo do Google, nunca a senha normal da conta.
-- `SERPER_API_KEY` (**opcional, recomendado**): chave de https://serper.dev para buscar anúncios indexados de LinkedIn, Gupy e outras fontes. O serviço possui franquia gratuita de avaliação e planos pagos; confira os limites da conta antes de habilitar. A implementação faz até 12 consultas indexadas por execução.
+- `SERPER_API_KEY` (**opcional, recomendado**): chave de https://serper.dev para buscar anúncios indexados de LinkedIn, Gupy e outras fontes. O serviço possui franquia gratuita de avaliação e planos pagos; confira os limites da conta antes de habilitar. A implementação faz até 13 consultas indexadas por execução.
 
 Para testar: **Actions → Radar remoto por e-mail → Run workflow**. O script não reenvia o relatório se a data atual já estiver registrada em `vistos.json`.
 
