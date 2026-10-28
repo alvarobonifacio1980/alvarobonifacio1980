@@ -34,7 +34,7 @@ Capturas reais das interfaces publicadas no Render, obtidas automaticamente pelo
 | :--- | :--- | :--- |
 | **Aprendizado de Máquina** | Estudos de previsão de volatilidade financeira, baselines, preparação de séries temporais e validação metodológica. | [Ver notebooks e documentação](https://github.com/alvarobonifacio1980/Aprendizado-de-Maquina) |
 | **Mineração de Dados** | Preparação de dados e EDA, agrupamento, regras de associação, classificação e regressão. | [Ver notebooks e dados](https://github.com/alvarobonifacio1980/Mineracao-de-Dados) |
-| **Análise de Dados** | Integração e tratamento de fontes, ETL, exploração de dados e estudos de séries financeiras. | [Ver projetos](https://github.com/alvarobonifacio1980/Analise-de-Dados) |
+| **Análise de Dados** | ETL e análise exploratória com Python, estudos de séries financeiras e dashboards em Power BI e Tableau (vendas, estratégias, indicadores públicos e saúde). | [Ver projetos](https://github.com/alvarobonifacio1980/Analise-de-Dados) |
 
 **Pesquisa em andamento:** previsão da volatilidade futura de ativos brasileiros, com atenção especial à PETR4. Os experimentos investigam séries temporais, indicadores financeiros, modelos estatísticos e de aprendizado de máquina, respeitando separação temporal entre treino e teste e prevenção de *data leakage*. Resultados experimentais não são promessas de desempenho em operações financeiras.
 
@@ -43,7 +43,7 @@ Capturas reais das interfaces publicadas no Render, obtidas automaticamente pelo
 | Área | Conhecimentos e tecnologias |
 | :--- | :--- |
 | **Dados e IA** | Python, Pandas, NumPy, Scikit-learn, estatística aplicada, Machine Learning, séries temporais e métodos de Deep Learning |
-| **Análise e visualização** | SQL, Power BI, análise exploratória, ETL, dashboards e visualização de dados |
+| **Análise e visualização** | SQL, Power BI, Tableau, análise exploratória, ETL, dashboards e indicadores de negócio |
 | **Desenvolvimento** | Git, GitHub, Streamlit, OpenCV, APIs e aplicações com IA generativa |
 | **Gestão de TI** | ITSM, ITIL, gestão de serviços e projetos, SLAs/ANS, BPMN, indicadores, observabilidade e melhoria contínua |
 
