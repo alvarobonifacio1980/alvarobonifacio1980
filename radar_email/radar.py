@@ -347,6 +347,49 @@ def salary_text(j):
             f"{label}, dados CAGED divulgados em 08/10/2026. NÃO é salário oferecido"
             f" e não é estimativa PJ. Fonte: {url}")
 
+MAX_TOTAL_JOBS = 500
+
+def published_timestamp(raw):
+    """Converte data da fonte em instante UTC; datas ausentes/invalidas ficam por ultimo."""
+    value = str(raw or "").strip()
+    if not value or value.lower() in ("nao informada", "não informada"):
+        return -1.0
+    try:
+        if re.fullmatch(r"\\d{10}(?:\\.\\d+)?", value):
+            return float(value)
+        if re.fullmatch(r"\\d{13}", value):
+            return int(value) / 1000
+        for pattern in ("%d/%m/%Y", "%Y-%m-%d", "%Y-%m-%d %H:%M:%S"):
+            try:
+                return datetime.strptime(value, pattern).replace(tzinfo=timezone.utc).timestamp()
+            except ValueError:
+                pass
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        if parsed.tzinfo is None:
+            parsed = parsed.replace(tzinfo=timezone.utc)
+        return parsed.timestamp()
+    except (ValueError, OverflowError, OSError):
+        return -1.0
+
+def formatted_date(raw):
+    timestamp = published_timestamp(raw)
+    if timestamp < 0:
+        return "não informada"
+    try:
+        return datetime.fromtimestamp(timestamp, tz=timezone.utc).strftime("%d/%m/%Y")
+    except (ValueError, OverflowError, OSError):
+        return "não informada"
+
+def ordered_jobs(jobs):
+    """Ordem por categoria; dentro de cada grupo: nota desc, data desc, desempate estavel."""
+    grouped = []
+    for name in CATEGORIES:
+        items = [j for j in jobs if j["category"] == name]
+        items.sort(key=lambda j: (-int(j["score"]), -published_timestamp(j.get("date")),
+                                  norm(j.get("company")), norm(j.get("title"))))
+        grouped.extend(items)
+    return grouped[:MAX_TOTAL_JOBS]
+
 def report(jobs,sources):
     lines = ["RADAR DE OPORTUNIDADES — "+now().strftime("%d/%m/%Y"), "",
              "Triagem preliminar; cargos e requisitos devem ser validados no anúncio.",
@@ -360,7 +403,7 @@ def report(jobs,sources):
         for j in group:
             destaque = "[CONCILIAÇÃO MESTRADO] " if schedule_info(j)[0] in ("MEIO PERÍODO", "HORÁRIO FLEXÍVEL", "HORÁRIO ALTERNATIVO") else ""
             lines += [f"{destaque}{j['score']}/100 | {j['title']} | {j['company']}",
-                      f"Origem: {j['source']} | Modalidade: {j['remote']} | Contrato: {j['regime']} | Publicação: {j['date']}",
+                      f"Origem: {j['source']} | Modalidade: {j['remote']} | Contrato: {j['regime']} | Publicação: {formatted_date(j['date'])}",
                       "Jornada: "+schedule_info(j)[0]+" — "+schedule_info(j)[1],
                       "Avaliação de idioma: "+j["notes"], "Remuneração: "+salary_text(j),
                       "Candidatura: "+j["url"], ""]
@@ -440,7 +483,7 @@ def render_html(jobs, sources, preview=False, include_seen=False):
             fields = (
                 ("Fonte",j["source"]), ("Jornada",shift+" — "+explanation),
                 ("Modalidade",j["remote"]),("Regime",j["regime"]),
-                ("Publicação",j["date"]),("Idioma e ressalvas",j.get("notes","")),
+                ("Publicação",formatted_date(j["date"])),("Idioma e ressalvas",j.get("notes","")),
                 ("Remuneração / orçamento",salary_text(j)),
             )
             for label, value in fields:
@@ -503,19 +546,9 @@ def main():
         if val is None or val[0]<65: continue
         j["score"],j["notes"]=val
         seen.add(k); chosen.append(j)
-    # Os anúncios brasileiros são prioritários, em vez de serem suplantados
-    # pela quantidade de anúncios internacionais de uma única API.
-    freelance = [j for j in chosen if j["category"] == "Freelancer e projetos"]
-    local = [j for j in chosen if j["source"].startswith("Busca indexada:") and j["category"] != "Freelancer e projetos"]
-    international = [j for j in chosen if not j["source"].startswith(("Busca indexada:","Freelancer:")) and j["category"] != "Freelancer e projetos"]
-    def sortkey(j):
-        favorable = schedule_info(j)[0] in ("MEIO PERÍODO", "HORÁRIO FLEXÍVEL", "HORÁRIO ALTERNATIVO")
-        return (not favorable, "anúncio em inglês" in j["notes"] or "exige inglês" in j["notes"],
-                -j["score"], j["company"])
-    local.sort(key=sortkey)
-    international.sort(key=sortkey)
-    freelance.sort(key=sortkey)
-    chosen = local[:20] + international[:8] + freelance[:12]
+    # Sem cotas por fonte ou categoria. Prioridade nacional segue nos critérios
+    # de busca e aderencia; nota e data determinam a ordem DENTRO de cada grupo.
+    chosen = ordered_jobs(chosen)
     source_counts = {}
     for selected in chosen:
         name = selected["source"]
