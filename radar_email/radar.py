@@ -355,9 +355,9 @@ def published_timestamp(raw):
     if not value or value.lower() in ("nao informada", "não informada"):
         return -1.0
     try:
-        if re.fullmatch(r"\\d{10}(?:\\.\\d+)?", value):
+        if re.fullmatch(r"\d{10}(?:\.\d+)?", value):
             return float(value)
-        if re.fullmatch(r"\\d{13}", value):
+        if re.fullmatch(r"\d{13}", value):
             return int(value) / 1000
         for pattern in ("%d/%m/%Y", "%Y-%m-%d", "%Y-%m-%d %H:%M:%S"):
             try:
