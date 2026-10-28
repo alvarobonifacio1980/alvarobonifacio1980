@@ -11,9 +11,10 @@ Automação em Python executada por GitHub Actions, **segunda a sexta às 8h de 
 | Jobicy | API pública | Padrão, sem chave |
 | LinkedIn Jobs | Resultados de busca Google via Serper | **Opcional — exige `SERPER_API_KEY`** |
 | Gupy | Resultados de busca Google via Serper | **Opcional — exige `SERPER_API_KEY`** |
+| Glassdoor | Resultados indexados via Serper (não API privada) | **Opcional — exige `SERPER_API_KEY`** |
 | Indeed, Remotar, Lever, Greenhouse | Resultados de busca Google via Serper | **Opcional — exige `SERPER_API_KEY`** |
 
-**Importante:** esta versão não acessa as APIs privadas de LinkedIn/Gupy e **não faz scraping** de páginas com login. A indexação externa não garante acesso a todas as vagas, atualidade ou confirmação da modalidade remota. Quando disponível, o link remete ao anúncio original para conferência. Para ampliar a cobertura brasileira, é necessário cadastrar a chave de pesquisa indexada.
+**Importante:** esta versão não acessa as APIs privadas de LinkedIn/Gupy e **não faz scraping** de páginas com login. A indexação externa não garante acesso a todas as vagas, atualidade ou confirmação da modalidade remota. O leitor de alertas LinkedIn pelo Gmail **não está integrado a esta rotina**: por enquanto, os alertas podem ser analisados separadamente nesta conversa. Os resultados da Serper são aproximações, não acesso direto a bases do LinkedIn, Gupy ou Glassdoor. Quando disponível, o link remete ao anúncio original para conferência. Para ampliar a cobertura brasileira, é necessário cadastrar a chave de pesquisa indexada.
 
 ## Configuração
 
@@ -21,7 +22,7 @@ No repositório do perfil, abra **Settings → Secrets and variables → Actions
 
 - `GMAIL_USER`: endereço da conta Gmail remetente.
 - `GMAIL_APP_PASSWORD`: senha de aplicativo do Google, nunca a senha normal da conta.
-- `SERPER_API_KEY` (**opcional, recomendado**): chave de https://serper.dev para buscar anúncios indexados de LinkedIn, Gupy e outras fontes. O serviço possui franquia gratuita de avaliação e planos pagos; confira os limites da conta antes de habilitar. A implementação faz até 13 consultas indexadas por execução.
+- `SERPER_API_KEY` (**opcional, recomendado**): chave de https://serper.dev para buscar anúncios indexados de LinkedIn, Gupy e outras fontes. O serviço possui franquia gratuita de avaliação e planos pagos; confira os limites da conta antes de habilitar. A implementação faz até 24 consultas indexadas por execução.
 
 Para testar: **Actions → Radar remoto por e-mail → Run workflow**. O script não reenvia o relatório se a data atual já estiver registrada em `vistos.json`.
 
@@ -40,6 +41,8 @@ Abra a execução concluída e baixe o artefato **`previa-radar`** em *Artifacts
 ## Classificação
 
 Prioridades: **português e regime CLT**, desde que a vaga seja remota, mas também são consideradas oportunidades em inglês, PJ, temporárias, de consultoria, docência e tutoria. Os anúncios em inglês sofrem redução moderada da nota; exigência explícita de fluência gera desconto maior e **deve ser verificada como possível requisito eliminatório**. A nota é uma triagem preliminar feita por regras de palavras-chave, **não é confirmação de requisitos atendidos**.
+
+A seleção final reserva até 25 vagas aos resultados brasileiros indexados (LinkedIn, Gupy, Glassdoor, Indeed, Remotar e carreiras), complementados por até dez vagas internacionais. Essa divisão é uma preferência de exibição: os resultados indexados ainda exigem confirmação no anúncio original. O relatório informa a quantidade exibida por fonte.
 
 As notas variam com a compatibilidade da descrição, requisitos e idioma, em vez de atribuir 91/100 a todos os resultados. Publicações híbridas e presenciais explicitamente obrigatórias são excluídas quando detectadas. Em resultados de busca indexada, a modalidade remota **não fica confirmada** apenas pelo título/snippet; a nota é penalizada e o anúncio deve ser lido antes da candidatura.
 
