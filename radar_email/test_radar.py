@@ -95,5 +95,31 @@ class TestRadar(unittest.TestCase):
     def test_freelancer_category_last(self):
         self.assertEqual(list(radar.CATEGORIES)[-1], "Freelancer e projetos")
 
+    def test_schedule_part_time(self):
+        j = self.sample("Analista de Suporte N2 remoto", "Service desk ITIL com jornada de meio período")
+        self.assertEqual(j["category"], "Suporte técnico e aplicações")
+        self.assertEqual(radar.schedule_info(j)[0], "MEIO PERÍODO")
+
+    def test_schedule_flexible_and_night(self):
+        a = self.sample("Suporte técnico remoto", "Atendimento com horário flexível e ITIL")
+        b = self.sample("Help Desk remoto", "Turno noturno no suporte de sistemas")
+        self.assertEqual(radar.schedule_info(a)[0], "HORÁRIO FLEXÍVEL")
+        self.assertEqual(radar.schedule_info(b)[0], "HORÁRIO ALTERNATIVO")
+
+    def test_schedule_unknown_without_evidence(self):
+        j = self.sample("Analista de Suporte N1", "Atendimento por chamados e ITIL")
+        self.assertEqual(radar.schedule_info(j)[0], "NÃO INFORMADO")
+
+    def test_schedule_full_time_is_not_flexible(self):
+        j = self.sample("Technical Support Engineer", "Full-time ITIL customer support")
+        self.assertEqual(radar.schedule_info(j)[0], "TEMPO INTEGRAL")
+
+    def test_schedule_label_in_report(self):
+        j = self.sample("Analista de Suporte N2 remoto", "Meio período e service desk")
+        j["score"], j["notes"] = radar.evaluate(j)
+        output = radar.report([j], [])
+        self.assertIn("[CONCILIAÇÃO MESTRADO]", output)
+        self.assertIn("Jornada: MEIO PERÍODO", output)
+
 if __name__ == "__main__":
     unittest.main()
