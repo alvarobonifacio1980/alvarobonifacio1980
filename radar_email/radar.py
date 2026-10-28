@@ -303,10 +303,35 @@ def evaluate(j):
     else:
         notes.append("anúncio em português ou idioma não determinado")
     if "validar" in j["remote"] or "confirmar" in j["remote"]: notes.append("remoto ainda não confirmado; validar antes de propor")
+    if schedule_info(j)[0] in ("MEIO PERÍODO", "HORÁRIO FLEXÍVEL", "HORÁRIO ALTERNATIVO"):
+        goals += 5
     score = max(0,min(79 if indexed else 99,exp+tech+remote+seniority+goals-penalty))
     if indexed:
         notes.append("PRÉ-TRIAGEM: descrição indexada incompleta; requisitos, empresa e remoto precisam ser confirmados")
     return score, "; ".join(notes)
+
+PART_TIME = ("meio periodo", "tempo parcial", "part time", "part-time", "20 horas semanais", "24 horas semanais", "30 horas semanais", "4 horas por dia", "6 horas por dia")
+FLEXIBLE = ("horario flexivel", "horarios flexiveis", "flexible hours", "flexible schedule", "horarios a combinar", "horario a combinar", "escolha seu horario", "choose your hours")
+ALTERNATIVE = ("turno noturno", "turno da noite", "periodo noturno", "turno vespertino", "fins de semana", "escala 12x36", "night shift", "evening shift", "weekend shift", "overnight shift")
+ROTATING = ("escala de revezamento", "turnos rotativos", "rotating shift", "shift work")
+FULL_TIME = ("tempo integral", "full time", "full-time", "40 horas semanais", "44 horas semanais")
+
+def schedule_info(j):
+    """Sinalização conservadora: só classifica com evidência textual."""
+    txt = norm(j["title"] + " " + j["description"] + " " + j["regime"])
+    def has(terms):
+        return any(norm(term) in txt for term in terms)
+    if has(PART_TIME):
+        return ("MEIO PERÍODO", "Jornada parcial indicada; confirmar carga horária")
+    if has(FLEXIBLE):
+        return ("HORÁRIO FLEXÍVEL", "Flexibilidade indicada; confirmar disponibilidade exigida")
+    if has(ALTERNATIVE):
+        return ("HORÁRIO ALTERNATIVO", "Turno alternativo indicado; confirmar dias e horários")
+    if has(ROTATING):
+        return ("ESCALA A CONFIRMAR", "Turnos citados, sem garantia de compatibilidade")
+    if has(FULL_TIME):
+        return ("TEMPO INTEGRAL", "Jornada integral indicada")
+    return ("NÃO INFORMADO", "Carga horária não identificada no texto disponível")
 
 def salary_text(j):
     if j["category"] == "Freelancer e projetos":
@@ -325,15 +350,18 @@ def salary_text(j):
 def report(jobs,sources):
     lines = ["RADAR DE OPORTUNIDADES — "+now().strftime("%d/%m/%Y"), "",
              "Triagem preliminar; cargos e requisitos devem ser validados no anúncio.",
-             "Preferência: remoto Brasil, português, CLT; PJ, contratos e docência incluídos.", ""]
+             "Preferência: remoto Brasil, português, CLT; PJ, contratos e docência incluídos.",
+             "Destaque para meio período e horários alternativos; jornada ausente não é presumida.", ""]
     if not jobs: lines.append("Nenhuma vaga NOVA elegível foi identificada nas fontes acessíveis.")
     for cat in CATEGORIES:
         group=[j for j in jobs if j["category"]==cat]
         if not group: continue
         lines += [cat.upper(),"="*34]
         for j in group:
-            lines += [f"{j['score']}/100 | {j['title']} | {j['company']}",
+            destaque = "[CONCILIAÇÃO MESTRADO] " if schedule_info(j)[0] in ("MEIO PERÍODO", "HORÁRIO FLEXÍVEL", "HORÁRIO ALTERNATIVO") else ""
+            lines += [f"{destaque}{j['score']}/100 | {j['title']} | {j['company']}",
                       f"Origem: {j['source']} | Modalidade: {j['remote']} | Contrato: {j['regime']} | Publicação: {j['date']}",
+                      "Jornada: "+schedule_info(j)[0]+" — "+schedule_info(j)[1],
                       "Avaliação de idioma: "+j["notes"], "Remuneração: "+salary_text(j),
                       "Candidatura: "+j["url"], ""]
     lines += ["COBERTURA DAS FONTES", *sources,
@@ -385,7 +413,8 @@ def main():
     local = [j for j in chosen if j["source"].startswith("Busca indexada:") and j["category"] != "Freelancer e projetos"]
     international = [j for j in chosen if not j["source"].startswith(("Busca indexada:","Freelancer:")) and j["category"] != "Freelancer e projetos"]
     def sortkey(j):
-        return ("anúncio em inglês" in j["notes"] or "exige inglês" in j["notes"],
+        favorable = schedule_info(j)[0] in ("MEIO PERÍODO", "HORÁRIO FLEXÍVEL", "HORÁRIO ALTERNATIVO")
+        return (not favorable, "anúncio em inglês" in j["notes"] or "exige inglês" in j["notes"],
                 -j["score"], j["company"])
     local.sort(key=sortkey)
     international.sort(key=sortkey)
