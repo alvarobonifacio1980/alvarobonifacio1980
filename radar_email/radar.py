@@ -83,14 +83,17 @@ def fetch_himalayas():
     jobs = []
     # A API retorna anúncios remotos e restrições geográficas estruturadas.
     for query in ("project manager", "business analyst", "data analyst", "instructor", "consultant", "data scientist", "operations manager"):
-        url = "https://himalayas.app/jobs/api/search?" + urllib.parse.urlencode({"q": query, "sort": "recent", "page": 1})
+        url = "https://himalayas.app/jobs/api/search?" + urllib.parse.urlencode({"q": query, "country": "BR", "sort": "recent", "page": 1})
         data = get_json(url)
         for row in data.get("jobs", []):
-            countries = [str(x.get("alpha2", "")).upper() for x in row.get("locationRestrictions", []) if isinstance(x, dict)]
-            if countries and "BR" not in countries:
+            countries = []
+            for item in row.get("locationRestrictions") or []:
+                raw = (item.get("alpha2") or item.get("name") or "") if isinstance(item, dict) else str(item)
+                countries.append(normalize(raw))
+            if countries and not any(c in ("br", "brazil", "brasil") for c in countries):
                 continue
-            offsets = row.get("timezoneRestrictions", []) or []
-            if offsets and not any("-03" in str(x) or "-3" == str(x) for x in offsets):
+            offsets = row.get("timezoneRestrictions") or []
+            if offsets and not any(str(x).strip() in ("-3", "-3.0", "-03", "UTC-3", "UTC-03:00") for x in offsets):
                 continue
             title = clean(row.get("title"))
             category = categorize(title)
