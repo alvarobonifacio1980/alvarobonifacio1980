@@ -148,25 +148,49 @@ def jobicy():
     return out
 
 def serper_indexed():
-    """Busca Google autorizada via Serper, em vez de raspar LinkedIn ou Gupy."""
+    """Pesquisa resultados indexados de plataformas de emprego via Serper."""
     secret = os.getenv("SERPER_API_KEY")
-    if not secret: raise RuntimeError("SERPER_API_KEY não configurada")
+    if not secret:
+        raise RuntimeError("SERPER_API_KEY não configurada")
+    plan = {
+        "LinkedIn": ("site:linkedin.com/jobs/view/", [
+            '"gerente de projetos" remoto Brasil', '"gestão de serviços" remoto',
+            '"analista de negócios" remoto', '"analista de dados" remoto',
+            '"professor" tecnologia remoto', '"consultor TI" remoto']),
+        "Gupy": ("site:gupy.io/jobs/", [
+            '"gestão de TI" remoto', '"analista de dados" remoto',
+            '"consultor" implantação remoto', '"tutor" EAD remoto',
+            '"governança" remoto', '"Power BI" remoto']),
+        "Glassdoor": ("site:glassdoor.com.br/Job/", [
+            '"analista de dados" remoto', '"gerente de projetos" remoto',
+            '"consultor de TI" remoto', '"professor tecnologia" remoto']),
+        "Indeed": ("site:br.indeed.com/viewjob", [
+            '"gerente de projetos" remoto', '"analista de negócios" remoto']),
+        "Remotar": ("site:remotar.com.br/job/", [
+            '"gerente" TI', '"analista de dados"']),
+        "Carreiras corporativas": ("(site:jobs.lever.co OR site:job-boards.greenhouse.io)", [
+            '"Brazil" "remote" "project manager"', '"Brasil" "remoto" "analista"']),
+    }
     out = []
-    for domain in ("site:linkedin.com/jobs/view", "site:gupy.io/jobs", "site:indeed.com.br/viewjob", "site:remotar.com.br/job", "site:jobs.lever.co", "site:boards.greenhouse.io"):
-        for term in SEARCHES[:3] if "gupy" in domain else SEARCHES[3:5] if "linkedin" in domain else SEARCHES[5:7]:
+    for source, (domain, terms) in plan.items():
+        for term in terms:
             data = fetch_json("https://google.serper.dev/search", method="POST",
-                payload={"q":domain+" "+term, "gl":"br","hl":"pt-br","num":10,"tbs":"qdr:m"},
+                payload={"q": domain+" "+term, "gl":"br", "hl":"pt-br",
+                         "num":10, "tbs":"qdr:m"},
                 headers={"X-API-KEY":secret,"Content-Type":"application/json"})
             for row in data.get("organic", []):
-                link=row.get("link") or ""
-                title=clean(row.get("title"))
-                descr=clean(row.get("snippet"))
+                link = row.get("link") or ""
+                title = clean(row.get("title"))
+                desc = clean(row.get("snippet"))
+                text = norm(title+" "+desc)
                 if not link.startswith("https://"): continue
-                if not any(k in norm(title+" "+descr) for k in ("remot", "home office", "teletrabalho")): continue
-                company = clean(title.split(" - ")[-1].split(" | ")[-1])
-                if company==title: company="Empresa a confirmar"
-                j=job(title, company, descr, link, "Busca indexada "+domain[5:], 
-                      "indicado no resultado; validar no anúncio", "", "", "")
+                if not any(w in text for w in ("remoto","remota","remote","home office","teletrabalho")): continue
+                if any(w in text for w in (" hibrido "," presencial "," hybrid ")): continue
+                # O resultado indexado não garante que a vaga continue aberta.
+                title = re.split(r"\s+[|–-]\s+(?:LinkedIn|Gupy|Indeed|Glassdoor)\b",title)[0].strip()
+                company = "Empresa a confirmar"
+                j = job(title,company,desc,link,"Busca indexada: "+source,
+                        "remoto indicado no índice; validar anúncio")
                 if j: out.append(j)
     return out
 
