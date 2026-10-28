@@ -46,7 +46,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: previa-radar
-          path: radar_email/previa_radar.txt
+          path: |
+            radar_email/previa_radar.txt
+            radar_email/previa_radar.html
           if-no-files-found: error
           retention-days: 7
       - name: Salvar controle de vagas enviadas
