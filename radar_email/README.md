@@ -34,7 +34,7 @@ Acesse **Actions → Radar remoto por e-mail → Run workflow**, com branch `mai
 - **`previa_demonstracao`:** busca anúncios atuais incluindo aqueles já apresentados; útil para validar visualmente campos, categorias, salário e notas. **Não representa a reprodução do e-mail anteriormente enviado.** Não envia e-mail, não altera o histórico.
 - **`enviar`:** comportamento normal, com envio SMTP e atualização do histórico apenas em caso de envio; se já houve envio na mesma data, não reenvia.
 
-Abra a execução concluída e baixe o artefato **`previa-radar`** em *Artifacts*, na parte inferior da página *Summary*. Ele contém `previa_radar.txt` e fica disponível por sete dias. Para prévias, a etapa de `git push` não é executada.
+Abra a execução concluída e baixe o artefato **`previa-radar`** em *Artifacts*, na parte inferior da página *Summary*. Ele contém `previa_radar.html` (abrir no navegador) e `previa_radar.txt` (texto simples), disponíveis por sete dias. Para prévias, a etapa de `git push` não é executada.
 
 **Não use `Re-run jobs` em execuções antigas** para conferir atualizações: o GitHub reutiliza o commit original. Inicie um `Run workflow` novo na branch `main`.
 
@@ -42,6 +42,10 @@ Abra a execução concluída e baixe o artefato **`previa-radar`** em *Artifacts
 ## Projetos freelancer
 
 Nova categoria: Python, SQL, dados, Power BI, automação, IA, consultoria e treinamentos. Fontes indexadas via Serper: 99Freelas, Workana, Freelancer.com, Fiverr, Vinteconto, GetNinjas, SimplyHired Brasil e Jooble Brasil. As duas últimas são agregadores de vagas, não marketplaces de projetos. Catálogos de prestadores não são considerados oportunidades automaticamente. A busca não acessa áreas privadas das plataformas; resultados públicos podem estar incompletos ou expirados. Validar orçamento, taxa, escopo e modalidade remota antes de enviar proposta. Sem preço divulgado, o sistema informa que o orçamento é desconhecido, sem inventar média por projeto. O relatório reserva até 20 posições para fontes brasileiras indexadas, oito para APIs internacionais e 12 para freelancer, sempre nesta ordem. A quantidade depende dos resultados elegíveis.
+
+## Relatório HTML
+
+Os e-mails passam a usar formato **multipart/alternative**: corpo HTML responsivo com cards por vaga, fonte, nota, destaque para jornada conciliável, remuneração e link clicável **Ver oportunidade**, com versão texto simples para clientes que não aceitam HTML. Os dados externos são escapados no HTML. No modo de prévia, o artefato contém `.html` e `.txt`, sem envio e sem alterar o controle de duplicidades.
 
 ## Jornada e conciliação com o mestrado
 
