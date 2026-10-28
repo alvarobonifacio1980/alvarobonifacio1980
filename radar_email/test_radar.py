@@ -183,7 +183,7 @@ class TestRadar(unittest.TestCase):
         self.assertEqual(sum(j["category"] == "Dados e negócios" for j in ordered), 500)
 
     def test_published_dates_supported(self):
-        self.assertEqual(radar.formatted_date("1793232000"), "28/10/2026")
+        self.assertEqual(radar.formatted_date("1793145600"), "28/10/2026")
         self.assertEqual(radar.formatted_date("2026-10-28T09:45:00Z"), "28/10/2026")
         self.assertEqual(radar.formatted_date("2026-10-27"), "27/10/2026")
         self.assertEqual(radar.formatted_date("não informada"), "não informada")
