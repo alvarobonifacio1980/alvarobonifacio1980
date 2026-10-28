@@ -185,14 +185,14 @@ def serper_indexed():
                 text = norm(title+" "+desc)
                 if not link.startswith("https://"): continue
                 if not any(w in text for w in ("remoto","remota","remote","home office","teletrabalho")): continue
-                if any(w in text for w in (" hibrido "," presencial "," hybrid ")): continue
+                if any(w in (" " + text + " ") for w in (" hibrido ", " hibrida ", " presencial ", " hybrid ", " onsite ", " on site ")): continue
                 # O resultado indexado não garante que a vaga continue aberta.
                 title = re.split(r"\s+[|–-]\s+(?:LinkedIn|Gupy|Indeed|Glassdoor)\b",title)[0].strip()
                 company = "Empresa a confirmar"
                 j = job(title,company,desc,link,"Busca indexada: "+source,
                         "remoto indicado no índice; validar anúncio")
                 if j: out.append(j)
-    return out
+    return list({j["url"].split("?")[0]: j for j in out}.values())
 
 def fingerprint(j):
     return norm(j["company"]) + "|" + norm(j["title"])
