@@ -188,5 +188,29 @@ class TestRadar(unittest.TestCase):
         self.assertEqual(radar.formatted_date("2026-10-27"), "27/10/2026")
         self.assertEqual(radar.formatted_date("não informada"), "não informada")
 
+    def test_email_multipart_html_and_text(self):
+        from unittest.mock import patch
+        class FakeSMTP:
+            def __init__(self, *args, **kwargs):
+                self.message = None
+            def __enter__(self): return self
+            def __exit__(self, *args): return False
+            def login(self, user, pwd): pass
+            def send_message(self, message):
+                self.message = message
+                self.assertion(message)
+            def assertion(self, message):
+                self.outer.assertEqual(message.get_content_type(), "multipart/alternative")
+                self.outer.assertEqual(
+                    [p.get_content_type() for p in message.iter_parts()],
+                    ["text/plain", "text/html"])
+                self.outer.assertIn("<html", list(message.iter_parts())[1].get_content())
+        fake = FakeSMTP()
+        fake.outer = self
+        with patch.dict("os.environ", {"GMAIL_USER":"remetente@example.com",
+                                        "GMAIL_APP_PASSWORD":"senha-teste"}):
+            with patch.object(radar.smtplib, "SMTP_SSL", return_value=fake):
+                radar.email("Texto simples", "<html><body>HTML</body></html>")
+
 if __name__ == "__main__":
     unittest.main()
