@@ -1,6 +1,6 @@
 # Radar de oportunidades remotas — e-mail automático
 
-Automação em Python executada por GitHub Actions, **segunda a sexta às 8h de Brasília (11h UTC, horário sujeito a atrasos no GitHub Actions)**. Envia relatórios ao endereço cadastrado e evita reapresentar vagas por empresa+cargo.
+Automação em Python executada por GitHub Actions, **todos os dias às 8h de Brasília (11h UTC, horário sujeito a atrasos no GitHub Actions)**. Envia relatórios ao endereço cadastrado e evita reapresentar vagas por empresa+cargo.
 
 ## Fontes
 
@@ -15,6 +15,8 @@ Automação em Python executada por GitHub Actions, **segunda a sexta às 8h de 
 | Indeed, Remotar, Lever, Greenhouse | Resultados de busca Google via Serper | **Opcional — exige `SERPER_API_KEY`** |
 
 **Importante:** esta versão não acessa as APIs privadas de LinkedIn/Gupy e **não faz scraping** de páginas com login. A indexação externa não garante acesso a todas as vagas, atualidade ou confirmação da modalidade remota. O leitor de alertas LinkedIn pelo Gmail **não está integrado a esta rotina**: por enquanto, os alertas podem ser analisados separadamente nesta conversa. Os resultados da Serper são aproximações, não acesso direto a bases do LinkedIn, Gupy ou Glassdoor. Quando disponível, o link remete ao anúncio original para conferência. Para ampliar a cobertura brasileira, é necessário cadastrar a chave de pesquisa indexada.
+
+O agendamento usa cron `0 11 * * *` e verifica os testes automatizados antes de consultar fontes e enviar o e-mail. O GitHub Actions não oferece garantia de início exato às 08h, nem entrega garantida caso os serviços externos falhem. O controle de duplicidade evita segundo envio no mesmo dia.
 
 ## Configuração
 
@@ -45,7 +47,7 @@ Nova categoria: Python, SQL, dados, Power BI, automação, IA, consultoria e tre
 
 ## Relatório HTML
 
-Os e-mails passam a usar formato **multipart/alternative**: corpo HTML responsivo com cards por vaga, fonte, nota, destaque para jornada conciliável, remuneração e link clicável **Ver oportunidade**, com versão texto simples para clientes que não aceitam HTML. Os dados externos são escapados no HTML. No modo de prévia, o artefato contém `.html` e `.txt`, sem envio e sem alterar o controle de duplicidades.
+Os e-mails são enviados em formato **multipart/alternative**: corpo HTML responsivo com cards por vaga, fonte, nota, destaque para jornada conciliável, remuneração e link clicável **Ver oportunidade**, com versão texto simples para clientes que não aceitam HTML. Os dados externos são escapados no HTML. No modo de prévia, o artefato contém `.html` e `.txt`, sem envio e sem alterar o controle de duplicidades.
 
 ## Jornada e conciliação com o mestrado
 
