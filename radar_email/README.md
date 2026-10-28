@@ -18,6 +18,16 @@ Automação em Python executada por GitHub Actions, **todos os dias às 8h de Br
 
 O agendamento usa cron `0 11 * * *` e verifica os testes automatizados antes de consultar fontes e enviar o e-mail. O GitHub Actions não oferece garantia de início exato às 08h, nem entrega garantida caso os serviços externos falhem. O controle de duplicidade evita segundo envio no mesmo dia.
 
+## Filtros e explicação da aderência
+
+O **e-mail HTML** destaca, imediatamente abaixo da nota, os **pontos fortes** (compatibilidade do cargo, termos técnicos presentes no anúncio e horários favoráveis quando identificados) e os **pontos de atenção** (inglês, modalidade remota não confirmada, ausência de jornada, requisitos incompletos, remuneração não divulgada). Essas são **evidências textuais e lacunas de informação**, não um diagnóstico definitivo de competências ou um parecer de recrutador.
+
+Filtros interativos não funcionam de forma confiável dentro dos clientes de e-mail. O arquivo **`radar_interativo.html`**, gerado na mesma execução, contém filtros locais por **conciliação com mestrado, fonte, nota mínima, data de publicação e área/categoria**, além do botão de limpar. O arquivo funciona no navegador sem API adicional e sem enviar dados a um servidor. Os filtros não alteram o histórico de vagas.
+
+Na execução de prévia: **Actions → Radar remoto por e-mail → Run workflow → `previa_demonstracao` → Artifacts → `previa-radar`**; abrir `radar_interativo.html`. O ZIP também contém `previa_radar.html` (visualização igual à do e-mail) e `previa_radar.txt`.
+
+Após uma execução normal de envio, o arquivo também estará disponível em **Artifacts → `radar-interativo`** por sete dias. Ele não é um site público: é um arquivo HTML baixado da execução no GitHub.
+
 ## Configuração
 
 No repositório do perfil, abra **Settings → Secrets and variables → Actions** e defina:
@@ -36,7 +46,7 @@ Acesse **Actions → Radar remoto por e-mail → Run workflow**, com branch `mai
 - **`previa_demonstracao`:** busca anúncios atuais incluindo aqueles já apresentados; útil para validar visualmente campos, categorias, salário e notas. **Não representa a reprodução do e-mail anteriormente enviado.** Não envia e-mail, não altera o histórico.
 - **`enviar`:** comportamento normal, com envio SMTP e atualização do histórico apenas em caso de envio; se já houve envio na mesma data, não reenvia.
 
-Abra a execução concluída e baixe o artefato **`previa-radar`** em *Artifacts*, na parte inferior da página *Summary*. Ele contém `previa_radar.html` (abrir no navegador) e `previa_radar.txt` (texto simples), disponíveis por sete dias. Para prévias, a etapa de `git push` não é executada.
+Abra a execução concluída e baixe o artefato **`previa-radar`** em *Artifacts*, na parte inferior da página *Summary*. Ele contém `radar_interativo.html` (com filtros no navegador), `previa_radar.html` (HTML como no e-mail) e `previa_radar.txt` (texto simples), disponíveis por sete dias. Para prévias, a etapa de `git push` não é executada.
 
 **Não use `Re-run jobs` em execuções antigas** para conferir atualizações: o GitHub reutiliza o commit original. Inicie um `Run workflow` novo na branch `main`.
 
