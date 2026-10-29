@@ -1,8 +1,8 @@
 name: Radar remoto por e-mail
 on:
   schedule:
-    # 08:00 Brasilia todos os dias (UTC-3); execucao pode atrasar no GitHub
-    - cron: '0 11 * * *'
+    # 08:00 Brasilia, segunda a sexta (UTC-3); GitHub pode atrasar ou omitir execucoes
+    - cron: '0 11 * * 1-5'
   workflow_dispatch:
     inputs:
       modo:
