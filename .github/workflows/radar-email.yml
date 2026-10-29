@@ -1,8 +1,12 @@
 name: Radar remoto por e-mail
 on:
   schedule:
-    # 08:00 Brasilia, segunda a sexta (UTC-3); GitHub pode atrasar ou omitir execucoes
+    # 08:00 Brasilia de segunda a sexta (UTC-3).
+    # Repeticoes de contingencia caso a primeira execucao seja omitida/atrasada.
+    # radar.py impede segundo envio no mesmo dia pelo last_email_date.
     - cron: '0 11 * * 1-5'
+    - cron: '15 11 * * 1-5'
+    - cron: '30 11 * * 1-5'
   workflow_dispatch:
     inputs:
       modo:
