@@ -347,8 +347,6 @@ def salary_text(j):
             f"{label}, dados CAGED divulgados em 08/10/2026. NÃO é salário oferecido"
             f" e não é estimativa PJ. Fonte: {url}")
 
-RADAR_PUBLIC_URL = "https://alvarobonifacio1980.github.io/alvarobonifacio1980/radar/"
-PUBLIC_RADAR_HTML = ROOT.parent / "docs" / "radar" / "index.html"
 
 MAX_TOTAL_JOBS = 500
 
@@ -510,13 +508,10 @@ def render_html(jobs, sources, preview=False, include_seen=False, interactive=Fa
     pieces.append('</tr></table></td></tr>')
     if not interactive:
         pieces.append('<tr><td style="padding:8px 24px 18px;text-align:center">'
-                      '<a href="'+esc(RADAR_PUBLIC_URL)+'" '
-                      'style="display:inline-block;background:#176744;color:#ffffff;text-decoration:none;'
-                      'padding:14px 20px;border-radius:8px;font-size:15px;font-weight:bold">'
-                      'Abrir radar com filtros no navegador</a>'
-                      '<div style="font-size:12px;color:#65758c;padding-top:8px">'
-                      'Filtre por nota, fonte, data, área e conciliação com o mestrado.</div>'
-                      '</td></tr>')
+                      '<div style="background:#eaf2ff;padding:12px;border-radius:8px;font-size:13px;color:#24466b">'
+                      '<strong>Filtros interativos:</strong> baixe o anexo '
+                      '<strong>radar_interativo.html</strong> deste e-mail e abra no Chrome ou Edge. '
+                      'O arquivo funciona sem instalar programas.</div></td></tr>')
     if not jobs:
         pieces.append('<tr><td style="padding:20px 24px;color:#53627a">Nenhuma vaga nova elegível identificada nas fontes acessíveis.</td></tr>')
     if interactive:
@@ -634,7 +629,7 @@ def render_html(jobs, sources, preview=False, include_seen=False, interactive=Fa
         pieces.insert(-1, script)
     return "".join(pieces)
 
-def email(report_text, report_html):
+def email(report_text, report_html, interactive_html=None):
     account=os.getenv("GMAIL_USER")
     password=os.getenv("GMAIL_APP_PASSWORD")
     if not account or not password: raise RuntimeError("Credenciais Gmail ausentes")
@@ -643,6 +638,9 @@ def email(report_text, report_html):
     m["Subject"]="Radar de oportunidades remotas — "+now().strftime("%d/%m/%Y")
     m.set_content(report_text)
     m.add_alternative(report_html, subtype="html")
+    if interactive_html is not None:
+        m.add_attachment(interactive_html.encode("utf-8"), maintype="application",
+                         subtype="octet-stream", filename="radar_interativo.html")
     with smtplib.SMTP_SSL("smtp.gmail.com",465, timeout=45, context=ssl.create_default_context()) as smtp:
         smtp.login(account,password); smtp.send_message(m)
 
@@ -697,10 +695,7 @@ def main():
         print(f"Prévia salva em {output}; sem SMTP e sem alterar vistos.json")
         return
     (ROOT / "radar_interativo.html").write_text(interactive_payload,encoding="utf-8")
-    email(payload,html_payload)
-    # Publicar a MESMA seleção enviada por e-mail; a execução de prévia nunca altera a página.
-    PUBLIC_RADAR_HTML.parent.mkdir(parents=True, exist_ok=True)
-    PUBLIC_RADAR_HTML.write_text(interactive_payload, encoding="utf-8")
+    email(payload,html_payload,interactive_payload)
     state["seen"]=sorted(set(state.get("seen",[])) | {fingerprint(j) for j in chosen})
     state["last_email_date"]=today
     STATE.write_text(json.dumps(state,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
