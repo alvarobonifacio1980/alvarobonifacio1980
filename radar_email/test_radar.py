@@ -235,6 +235,10 @@ class TestRadar(unittest.TestCase):
         self.assertIn("<script>", interactive)
         self.assertIn("Pontos fortes:", email_html)
         self.assertIn("Pontos de atenção:", email_html)
+        self.assertIn("Abrir radar com filtros no navegador", email_html)
+        self.assertIn(radar.RADAR_PUBLIC_URL, email_html)
+        self.assertNotIn("Abrir radar com filtros no navegador", interactive)
+
 
 if __name__ == "__main__":
     unittest.main()
