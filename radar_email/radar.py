@@ -347,6 +347,9 @@ def salary_text(j):
             f"{label}, dados CAGED divulgados em 08/10/2026. NÃO é salário oferecido"
             f" e não é estimativa PJ. Fonte: {url}")
 
+RADAR_PUBLIC_URL = "https://alvarobonifacio1980.github.io/alvarobonifacio1980/radar/"
+PUBLIC_RADAR_HTML = ROOT.parent / "docs" / "radar" / "index.html"
+
 MAX_TOTAL_JOBS = 500
 
 def published_timestamp(raw):
@@ -505,6 +508,15 @@ def render_html(jobs, sources, preview=False, include_seen=False, interactive=Fa
                       '<div style="font-size:23px;font-weight:bold;color:#172c4d">'+str(number)+'</div>'
                       '<div style="font-size:11px;color:#65758c">'+esc(label)+'</div></td>')
     pieces.append('</tr></table></td></tr>')
+    if not interactive:
+        pieces.append('<tr><td style="padding:8px 24px 18px;text-align:center">'
+                      '<a href="'+esc(RADAR_PUBLIC_URL)+'" '
+                      'style="display:inline-block;background:#176744;color:#ffffff;text-decoration:none;'
+                      'padding:14px 20px;border-radius:8px;font-size:15px;font-weight:bold">'
+                      'Abrir radar com filtros no navegador</a>'
+                      '<div style="font-size:12px;color:#65758c;padding-top:8px">'
+                      'Filtre por nota, fonte, data, área e conciliação com o mestrado.</div>'
+                      '</td></tr>')
     if not jobs:
         pieces.append('<tr><td style="padding:20px 24px;color:#53627a">Nenhuma vaga nova elegível identificada nas fontes acessíveis.</td></tr>')
     if interactive:
@@ -686,6 +698,9 @@ def main():
         return
     (ROOT / "radar_interativo.html").write_text(interactive_payload,encoding="utf-8")
     email(payload,html_payload)
+    # Publicar a MESMA seleção enviada por e-mail; a execução de prévia nunca altera a página.
+    PUBLIC_RADAR_HTML.parent.mkdir(parents=True, exist_ok=True)
+    PUBLIC_RADAR_HTML.write_text(interactive_payload, encoding="utf-8")
     state["seen"]=sorted(set(state.get("seen",[])) | {fingerprint(j) for j in chosen})
     state["last_email_date"]=today
     STATE.write_text(json.dumps(state,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
