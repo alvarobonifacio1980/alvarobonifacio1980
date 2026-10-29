@@ -200,17 +200,21 @@ class TestRadar(unittest.TestCase):
                 self.message = message
                 self.assertion(message)
             def assertion(self, message):
-                self.outer.assertEqual(message.get_content_type(), "multipart/alternative")
+                self.outer.assertEqual(message.get_content_type(), "multipart/mixed")
                 self.outer.assertEqual(
                     [p.get_content_type() for p in message.iter_parts()],
-                    ["text/plain", "text/html"])
-                self.outer.assertIn("<html", list(message.iter_parts())[1].get_content())
+                    ["multipart/alternative", "application/octet-stream"])
+                body, attachment = list(message.iter_parts())
+                self.outer.assertIn("<html", list(body.iter_parts())[1].get_content())
+                self.outer.assertEqual(attachment.get_filename(), "radar_interativo.html")
+                self.outer.assertIn(b'id="f-score"', attachment.get_payload(decode=True))
         fake = FakeSMTP()
         fake.outer = self
         with patch.dict("os.environ", {"GMAIL_USER":"remetente@example.com",
                                         "GMAIL_APP_PASSWORD":"senha-teste"}):
             with patch.object(radar.smtplib, "SMTP_SSL", return_value=fake):
-                radar.email("Texto simples", "<html><body>HTML</body></html>")
+                radar.email("Texto simples", "<html><body>HTML</body></html>",
+                            '<html><input id="f-score"></html>')
 
     def test_alignment_reasons_are_grounded(self):
         j = self.sample("Analista de Dados", "Python SQL Power BI. Inglês avançado obrigatório.")
@@ -235,8 +239,8 @@ class TestRadar(unittest.TestCase):
         self.assertIn("<script>", interactive)
         self.assertIn("Pontos fortes:", email_html)
         self.assertIn("Pontos de atenção:", email_html)
-        self.assertIn("Abrir radar com filtros no navegador", email_html)
-        self.assertIn(radar.RADAR_PUBLIC_URL, email_html)
+        self.assertIn("radar_interativo.html", email_html)
+        self.assertNotIn("github.io", email_html)
         self.assertNotIn("Abrir radar com filtros no navegador", interactive)
 
 
