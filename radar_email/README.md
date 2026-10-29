@@ -18,29 +18,18 @@ Automação em Python executada por GitHub Actions, **segunda a sexta-feira, às
 
 O agendamento usa cron `0 11 * * 1-5`, `15 11 * * 1-5` e `30 11 * * 1-5` (somente dias úteis). O script só permite um envio por data, impedindo duplicações entre as tentativas. O primeiro horário é 8h, e os outros são contingências. A ausência de execução no GitHub não dispara um e-mail automaticamente fora desses horários. A rotina verifica os testes automatizados antes de consultar fontes e enviar o e-mail. O GitHub Actions não oferece garantia de início exato às 08h, nem entrega garantida caso os serviços externos falhem. O controle de duplicidade evita segundo envio no mesmo dia.
 
-## Filtros e explicação da aderência
+## Relatório HTML e filtros
 
-O **e-mail HTML** destaca, imediatamente abaixo da nota, os **pontos fortes** (compatibilidade do cargo, termos técnicos presentes no anúncio e horários favoráveis quando identificados) e os **pontos de atenção** (inglês, modalidade remota não confirmada, ausência de jornada, requisitos incompletos, remuneração não divulgada). Essas são **evidências textuais e lacunas de informação**, não um diagnóstico definitivo de competências ou um parecer de recrutador.
+Cada e-mail enviado contém:
 
-Filtros interativos não funcionam de forma confiável dentro dos clientes de e-mail. O arquivo **`radar_interativo.html`**, gerado na mesma execução, contém filtros locais por **conciliação com mestrado, fonte, nota mínima, data de publicação e área/categoria**, além do botão de limpar. O arquivo funciona no navegador sem API adicional e sem enviar dados a um servidor. Os filtros não alteram o histórico de vagas.
+- **Corpo do e-mail em HTML** com vagas, notas, pontos fortes, pontos de atenção e links de candidatura.
+- **Anexo `radar_interativo.html`** com a mesma seleção de vagas e filtros por conciliação com o mestrado, fonte, nota mínima, data de publicação e área/categoria.
 
-Na execução de prévia: **Actions → Radar remoto por e-mail → Run workflow → `previa_demonstracao` → Artifacts → `previa-radar`**; abrir `radar_interativo.html`. O ZIP também contém `previa_radar.html` (visualização igual à do e-mail) e `previa_radar.txt`.
+O Gmail mostra o HTML do corpo diretamente, mas não executa os filtros JavaScript. Para utilizá-los, **baixe o anexo `radar_interativo.html` no próprio Gmail e abra-o no Chrome ou Edge**. O arquivo funciona localmente, sem hospedagem ou serviços adicionais. Não é publicado no GitHub Pages.
 
-Após uma execução normal de envio, o arquivo também estará disponível em **Artifacts → `radar-interativo`** por sete dias.
+Em prévias, os arquivos `previa_radar.html`, `previa_radar.txt` e `radar_interativo.html` continuam disponíveis nos artefatos da execução, sem envio ou alteração do histórico.
 
-### Abrir com um clique no e-mail (GitHub Pages)
-
-O corpo do e-mail inclui o botão **Abrir radar com filtros no navegador**, que aponta para:
-
-https://alvarobonifacio1980.github.io/alvarobonifacio1980/radar/
-
-Para ativar o endereço na primeira vez, no repositório `alvarobonifacio1980/alvarobonifacio1980`, acesse **Settings → Pages → Build and deployment → Deploy from a branch** e selecione **Branch: main**, **Folder: /docs**, depois **Save**. Aguarde a publicação inicial pelo GitHub. Essa configuração única é necessária: o código por si só não habilita o GitHub Pages.
-
-Em cada envio de segunda a sexta, o script salva a seleção de vagas em `docs/radar/index.html` e o workflow publica esse arquivo junto com o histórico de deduplicação. O e-mail leva à **última edição publicada**, não necessariamente a um histórico do dia anterior. A publicação pode levar algum tempo após o e-mail, pois depende do GitHub Actions e do Pages.
-
-**Atenção à privacidade:** o HTML inclui títulos, notas e links de oportunidades e fica **publicamente acessível** pelo GitHub Pages; não publicar informações pessoais ou credenciais nesse relatório. As prévias não modificam o site nem o histórico.
-
-Se o GitHub Pages ainda não estiver ativado, o botão poderá abrir uma página 404 até a configuração ser concluída; o relatório HTML anexo ao Actions continuará sendo a alternativa.
+O radar principal permanece agendado de segunda a sexta, às 08h de Brasília, com verificações de contingência às 08h15 e às 08h30. Um único envio por dia é permitido.
 
 ## Configuração
 
