@@ -16,7 +16,7 @@ Automação em Python executada por GitHub Actions, **segunda a sexta-feira, às
 
 **Importante:** esta versão não acessa as APIs privadas de LinkedIn/Gupy e **não faz scraping** de páginas com login. A indexação externa não garante acesso a todas as vagas, atualidade ou confirmação da modalidade remota. O leitor de alertas LinkedIn pelo Gmail **não está integrado a esta rotina**: por enquanto, os alertas podem ser analisados separadamente nesta conversa. Os resultados da Serper são aproximações, não acesso direto a bases do LinkedIn, Gupy ou Glassdoor. Quando disponível, o link remete ao anúncio original para conferência. Para ampliar a cobertura brasileira, é necessário cadastrar a chave de pesquisa indexada.
 
-O agendamento usa cron `0 11 * * 1-5`, `15 11 * * 1-5` e `30 11 * * 1-5` (somente dias úteis). O script só permite um envio por data, impedindo duplicações entre as tentativas. O primeiro horário é 8h, e os outros são contingências. A ausência de execução no GitHub não dispara um e-mail automaticamente fora desses horários. O agendamento e verifica os testes automatizados antes de consultar fontes e enviar o e-mail. O GitHub Actions não oferece garantia de início exato às 08h, nem entrega garantida caso os serviços externos falhem. O controle de duplicidade evita segundo envio no mesmo dia.
+O agendamento usa cron `0 11 * * 1-5`, `15 11 * * 1-5` e `30 11 * * 1-5` (somente dias úteis). O script só permite um envio por data, impedindo duplicações entre as tentativas. O primeiro horário é 8h, e os outros são contingências. A ausência de execução no GitHub não dispara um e-mail automaticamente fora desses horários. A rotina verifica os testes automatizados antes de consultar fontes e enviar o e-mail. O GitHub Actions não oferece garantia de início exato às 08h, nem entrega garantida caso os serviços externos falhem. O controle de duplicidade evita segundo envio no mesmo dia.
 
 ## Filtros e explicação da aderência
 
@@ -26,7 +26,21 @@ Filtros interativos não funcionam de forma confiável dentro dos clientes de e-
 
 Na execução de prévia: **Actions → Radar remoto por e-mail → Run workflow → `previa_demonstracao` → Artifacts → `previa-radar`**; abrir `radar_interativo.html`. O ZIP também contém `previa_radar.html` (visualização igual à do e-mail) e `previa_radar.txt`.
 
-Após uma execução normal de envio, o arquivo também estará disponível em **Artifacts → `radar-interativo`** por sete dias. Ele não é um site público: é um arquivo HTML baixado da execução no GitHub.
+Após uma execução normal de envio, o arquivo também estará disponível em **Artifacts → `radar-interativo`** por sete dias.
+
+### Abrir com um clique no e-mail (GitHub Pages)
+
+O corpo do e-mail inclui o botão **Abrir radar com filtros no navegador**, que aponta para:
+
+https://alvarobonifacio1980.github.io/alvarobonifacio1980/radar/
+
+Para ativar o endereço na primeira vez, no repositório `alvarobonifacio1980/alvarobonifacio1980`, acesse **Settings → Pages → Build and deployment → Deploy from a branch** e selecione **Branch: main**, **Folder: /docs**, depois **Save**. Aguarde a publicação inicial pelo GitHub. Essa configuração única é necessária: o código por si só não habilita o GitHub Pages.
+
+Em cada envio de segunda a sexta, o script salva a seleção de vagas em `docs/radar/index.html` e o workflow publica esse arquivo junto com o histórico de deduplicação. O e-mail leva à **última edição publicada**, não necessariamente a um histórico do dia anterior. A publicação pode levar algum tempo após o e-mail, pois depende do GitHub Actions e do Pages.
+
+**Atenção à privacidade:** o HTML inclui títulos, notas e links de oportunidades e fica **publicamente acessível** pelo GitHub Pages; não publicar informações pessoais ou credenciais nesse relatório. As prévias não modificam o site nem o histórico.
+
+Se o GitHub Pages ainda não estiver ativado, o botão poderá abrir uma página 404 até a configuração ser concluída; o relatório HTML anexo ao Actions continuará sendo a alternativa.
 
 ## Configuração
 
