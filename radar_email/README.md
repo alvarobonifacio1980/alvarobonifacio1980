@@ -1,6 +1,6 @@
 # Radar de oportunidades remotas — e-mail automático
 
-Automação em Python executada por GitHub Actions, **todos os dias às 8h de Brasília (11h UTC, horário sujeito a atrasos no GitHub Actions)**. Envia relatórios ao endereço cadastrado e evita reapresentar vagas por empresa+cargo.
+Automação em Python executada por GitHub Actions, **segunda a sexta-feira, às 8h de Brasília (11h UTC, com tentativas de contingência às 8h15 e 8h30; GitHub Actions pode atrasar ou omitir execuções)**. Envia relatórios ao endereço cadastrado e evita reapresentar vagas por empresa+cargo.
 
 ## Fontes
 
@@ -16,7 +16,7 @@ Automação em Python executada por GitHub Actions, **todos os dias às 8h de Br
 
 **Importante:** esta versão não acessa as APIs privadas de LinkedIn/Gupy e **não faz scraping** de páginas com login. A indexação externa não garante acesso a todas as vagas, atualidade ou confirmação da modalidade remota. O leitor de alertas LinkedIn pelo Gmail **não está integrado a esta rotina**: por enquanto, os alertas podem ser analisados separadamente nesta conversa. Os resultados da Serper são aproximações, não acesso direto a bases do LinkedIn, Gupy ou Glassdoor. Quando disponível, o link remete ao anúncio original para conferência. Para ampliar a cobertura brasileira, é necessário cadastrar a chave de pesquisa indexada.
 
-O agendamento usa cron `0 11 * * *` e verifica os testes automatizados antes de consultar fontes e enviar o e-mail. O GitHub Actions não oferece garantia de início exato às 08h, nem entrega garantida caso os serviços externos falhem. O controle de duplicidade evita segundo envio no mesmo dia.
+O agendamento usa cron `0 11 * * 1-5`, `15 11 * * 1-5` e `30 11 * * 1-5` (somente dias úteis). O script só permite um envio por data, impedindo duplicações entre as tentativas. O primeiro horário é 8h, e os outros são contingências. A ausência de execução no GitHub não dispara um e-mail automaticamente fora desses horários. O agendamento e verifica os testes automatizados antes de consultar fontes e enviar o e-mail. O GitHub Actions não oferece garantia de início exato às 08h, nem entrega garantida caso os serviços externos falhem. O controle de duplicidade evita segundo envio no mesmo dia.
 
 ## Filtros e explicação da aderência
 
