@@ -98,6 +98,12 @@ def mandatory_nonprofile_stack(description):
     for name, expression in NON_PROFILE_STACKS.items():
         for match in re.finditer(expression, desc):
             preceding = desc[max(0, match.start()-90):match.start()]
+            # O bloco opcional prevalece sobre requisitos gerais anteriores.
+            optional_headings = list(re.finditer(
+                r"\\b(?:diferenciais|desej[aá]veis|nice[- ]to[- ]have|opcionais)\\s*:", desc[:match.start()]))
+            latest_mandatory = max((h.start() for h in section_heads if h.start() < match.start()), default=-1)
+            if optional_headings and optional_headings[-1].start() > latest_mandatory:
+                continue
             # A existência de uma tecnologia apenas desejável não elimina a vaga.
             if re.search(r"\\b(?:desej[aá]ve(?:l|is)|diferencia(?:l|is)|opciona(?:l|is)|nice[- ]to[- ]have|um plus)\\b", preceding[-65:]):
                 continue
