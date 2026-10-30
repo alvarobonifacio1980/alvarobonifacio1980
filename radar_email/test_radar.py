@@ -11,6 +11,43 @@ class TestRadar(unittest.TestCase):
         score_b = radar.evaluate(b)[0]
         self.assertLess(score_b, score_a)
         self.assertNotEqual(score_a, 91)
+    def test_systems_analyst_classified(self):
+        for title in ("Analista de Sistemas Sênior", "Analista de Requisitos",
+                      "Analista Funcional", "Systems Analyst", "Business Systems Analyst"):
+            j = self.sample(title, "Levantamento de requisitos, SQL, Oracle, homologação e integração")
+            self.assertEqual(j["category"], "Análise de sistemas e requisitos")
+            self.assertIsNotNone(radar.evaluate(j))
+
+    def test_mandatory_nonprofile_stack_excluded(self):
+        descriptions = (
+            "Requisitos essenciais: conhecimento da stack .NET, SQL Server e APIs. Diferenciais: cloud.",
+            "Requisitos obrigatórios: C# e ASP.NET Core. Documentação e integração.",
+            "Domínio de Java/Spring Boot é obrigatório. Requisitos de negócio e SQL.",
+            "Experiência exigida com SAP/ABAP. Integração e levantamento de requisitos.",
+        )
+        for description in descriptions:
+            with self.subTest(description=description):
+                j = self.sample("Analista de Sistemas Sênior", description)
+                self.assertIsNone(radar.evaluate(j))
+
+    def test_optional_stack_not_disqualifying(self):
+        desc = ("Requisitos essenciais: análise de requisitos, SQL e documentação. "
+                "Diferenciais: experiência com .NET, C#, Java/Spring Boot ou SAP/ABAP.")
+        j = self.sample("Analista de Sistemas Sênior", desc)
+        self.assertIsNotNone(radar.evaluate(j))
+
+    def test_systems_search_queries_present(self):
+        from unittest.mock import patch
+        queries = []
+        def fake(url, **kwargs):
+            queries.append(kwargs["payload"]["q"])
+            return {"organic": []}
+        with patch.dict("os.environ", {"SERPER_API_KEY": "fake"}):
+            with patch.object(radar, "fetch_json", side_effect=fake):
+                radar.serper_indexed()
+        self.assertTrue(any('"analista de sistemas"' in q for q in queries))
+        self.assertTrue(any('"analista de requisitos"' in q for q in queries))
+
     def test_remote_disqualification(self):
         a=self.sample("Analista de Dados", "python sql power bi hybrid required")
         self.assertIsNone(radar.evaluate(a))
