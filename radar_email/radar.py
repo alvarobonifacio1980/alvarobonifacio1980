@@ -28,11 +28,16 @@ SEARCHES = [
     '"governança de TI" "remoto"', '"gerente de projetos" "remoto"',
     '"analista de negócios" "remoto"', '"analista de dados" "remoto"',
     '"Power BI" "remoto"', '"cientista de dados" "remoto"',
+    '"analista de sistemas" "remoto"', '"analista de requisitos" "remoto"',
+    '"analista funcional" "remoto"',
 ]
 CATEGORIES = {
     "Docência e tutoria": ("professor", "docent", "tutor", "instrutor", "instructor", "trainer", "educator", "conteudista", "teaching", "teacher"),
     "Consultoria": ("consultor", "consultant", "implementation", "implantação", "implanta", "advisory"),
     "Gestão e governança TI": ("gerente", "coordenador", "gestor", "it manager", "service manager", "project manager", "delivery manager", "program manager", "governance", "governança", "pmo", "itil"),
+    "Análise de sistemas e requisitos": ("analista de sistemas", "analista de requisitos", "analista funcional",
+        "analista de aplicações", "analista de aplicacoes", "systems analyst", "system analyst",
+        "requirements analyst", "functional analyst", "business systems analyst", "application analyst"),
     "Dados e negócios": ("data analyst", "analista de dados", "analista de negócios", "business analyst", "business intelligence", "analytics", "power bi", "bi analyst"),
     "IA e ciência de dados": ("data scientist", "cientista de dados", "machine learning", "ai engineer", "inteligência artificial", "ml engineer"),
     "Administração tecnológica": ("operations coordinator", "technical operations", "administrativo", "administrative", "support manager", "customer success"),
@@ -44,6 +49,10 @@ POSITIVE = {
     "Docência e tutoria": ("treinamento", "curso", "educa", "ensino", "training", "instructor", "tutor", "computing", "technology"),
     "Consultoria": ("implant", "process", "projeto", "project", "itil", "consult", "cliente", "client", "business", "sistema"),
     "Gestão e governança TI": ("itil", "sla", "service", "project", "governance", "governança", "observability", "gestão", "process", "kpi", "management"),
+    "Análise de sistemas e requisitos": ("requisitos", "requirements", "homologação", "homologacao", "processos",
+        "process", "negócio", "negocio", "business", "sql", "oracle", "integração", "integracao",
+        "integration", "documentação", "documentacao", "architecture", "arquitetura", "user stories",
+        "sistemas", "system", "testing", "teste", "api"),
     "Dados e negócios": ("sql", "power bi", "python", "pandas", "etl", "dashboard", "analytics", "business"),
     "IA e ciência de dados": ("python", "machine learning", "deep learning", "data", "analytics", "scikit", "statistic", "time series"),
     "Administração tecnológica": ("process", "operations", "gestão", "itil", "sla", "service", "coordination"),
@@ -69,6 +78,41 @@ BENCHMARK = {
     "IA e ciência de dados": (10356, "Cientista de Dados, 42h/sem", "https://www.salario.com.br/profissao/cientista-de-dados-data-scientist/"),
 
 }
+
+# Tecnologias sem experiência profissional confirmada no currículo: só são
+# eliminatórias quando aparecem como exigência, não como diferencial.
+NON_PROFILE_STACKS = {
+    "ecossistema .NET/C#": r"(?<![a-z0-9])(?:\\.net|asp\\s*\\.?\\s*net|dotnet|c\\s*#)(?![a-z0-9])",
+    "Java/Spring Boot": r"\\bspring\\s+boot\\b|\\bjava\\s*[/+]\\s*spring\\b",
+    "SAP/ABAP": r"\\babap\\b",
+}
+
+def mandatory_nonprofile_stack(description):
+    """Identifica especialização exigida, evitando inferir obrigação de mero diferencial."""
+    desc = clean(description).lower()
+    section_heads = list(re.finditer(
+        r"\\b(?:requisitos\\s+(?:essenciais|obrigat[oó]rios|t[eé]cnicos)|"
+        r"requisitos\\s*:|qualifica[cç][oõ]es\\s+obrigat[oó]rias|"
+        r"must[- ]have\\s*:|required\\s+qualifications\\s*:|requirements\\s*:)", desc))
+    section_end = r"\\b(?:diferenciais|desej[aá]veis|nice[- ]to[- ]have|benef[ií]cios|o que oferecemos|sobre n[oó]s|responsabilidades)\\b"
+    for name, expression in NON_PROFILE_STACKS.items():
+        for match in re.finditer(expression, desc):
+            preceding = desc[max(0, match.start()-90):match.start()]
+            # A existência de uma tecnologia apenas desejável não elimina a vaga.
+            if re.search(r"\\b(?:desej[aá]vel|diferencial|opcional|nice[- ]to[- ]have|um plus)\\b", preceding[-65:]):
+                continue
+            for heading in section_heads:
+                if heading.end() > match.start():
+                    continue
+                between = desc[heading.end():match.start()]
+                if not re.search(section_end, between):
+                    return name
+            # Anúncios sem seções: exigir expressão explícita próxima da tecnologia.
+            if re.search(r"\\b(?:obrigat[oó]ri[oa]s?|indispens[aá]vel|essencial|exig[ií]d[oa]s?|"
+                         r"exige|requer|dom[ií]nio|experi[eê]ncia|conhecimento|familiaridade|"
+                         r"must[- ]have|required)\\b", preceding[-65:]):
+                return name
+    return None
 
 def now():
     return datetime.now(TZ)
@@ -122,7 +166,7 @@ def remotive():
 
 def himalayas():
     out = []
-    for term in ("project manager", "data analyst", "consultant", "instructor", "data scientist", "business analyst", "technical support", "service desk"):
+    for term in ("project manager", "data analyst", "consultant", "instructor", "data scientist", "business analyst", "systems analyst", "requirements analyst", "technical support", "service desk"):
         data = fetch_json("https://himalayas.app/jobs/api/search?" + urllib.parse.urlencode({"q":term,"country":"BR","page":1}))
         for row in data.get("jobs",[]):
             regions = [norm(x.get("alpha2") or x.get("name")) if isinstance(x,dict) else norm(x) for x in row.get("locationRestrictions") or []]
@@ -160,16 +204,20 @@ def serper_indexed():
         "LinkedIn": ("site:linkedin.com/jobs/view/", [
             '"gerente de projetos" remoto Brasil', '"gestão de serviços" remoto',
             '"analista de negócios" remoto', '"analista de dados" remoto',
+            '"analista de sistemas" remoto', '"analista de requisitos" remoto',
             '"professor" tecnologia remoto', '"consultor TI" remoto', '"analista de suporte" remoto', '"service desk" remoto meio período', '"suporte N2" remoto']),
         "Gupy": ("site:gupy.io/jobs/", [
             '"gestão de TI" remoto', '"analista de dados" remoto',
             '"consultor" implantação remoto', '"tutor" EAD remoto',
-            '"governança" remoto', '"Power BI" remoto', '"analista de suporte" remoto', '"suporte de sistemas" remoto', '"suporte técnico" home office']),
+            '"governança" remoto', '"Power BI" remoto', '"analista de sistemas" remoto',
+            '"analista funcional" remoto', '"analista de suporte" remoto', '"suporte de sistemas" remoto', '"suporte técnico" home office']),
         "Glassdoor": ("site:glassdoor.com.br/Job/", [
             '"analista de dados" remoto', '"gerente de projetos" remoto',
-            '"consultor de TI" remoto', '"professor tecnologia" remoto', '"help desk" remoto', '"suporte técnico" meio período remoto']),
+            '"consultor de TI" remoto', '"professor tecnologia" remoto',
+            '"analista de sistemas" remoto', '"help desk" remoto', '"suporte técnico" meio período remoto']),
         "Indeed": ("site:br.indeed.com/viewjob", [
-            '"gerente de projetos" remoto', '"analista de negócios" remoto', '"suporte técnico" remoto meio período']),
+            '"gerente de projetos" remoto', '"analista de negócios" remoto',
+            '"analista de requisitos" remoto', '"suporte técnico" remoto meio período']),
         "Remotar": ("site:remotar.com.br/job/", [
             '"gerente" TI', '"analista de dados"']),
         "Carreiras corporativas": ("(site:jobs.lever.co OR site:job-boards.greenhouse.io)", [
@@ -271,6 +319,8 @@ def canonical_url(url):
 def evaluate(j):
     title, desc = norm(j["title"]), norm(j["description"])
     if any(norm(x) in desc for x in HARD_BLOCK): return None
+    # Requisito eliminatório: não compensar com experiência genérica em TI.
+    if mandatory_nonprofile_stack(j["description"]): return None
     cat = j["category"]
     # Busca indexada: texto curto não permite medir requisitos detalhadamente.
     # Criar faixa preliminar própria (65-79), SEM declarar elegibilidade confirmada.
@@ -288,7 +338,7 @@ def evaluate(j):
         seniority = 10 if any(k in title for k in ("senior","sr","gerente","manager","consultor","especialista")) else 8
         if any(w in norm(j["regime"]) for w in ("full time", "tempo integral", "clt")):
             seniority += 3
-    goals = {"Suporte técnico e aplicações":9,"Freelancer e projetos":10,"Docência e tutoria":10,"Consultoria":9,"Gestão e governança TI":10,"Dados e negócios":9,"IA e ciência de dados":7,"Administração tecnológica":8}[cat]
+    goals = {"Suporte técnico e aplicações":9,"Freelancer e projetos":10,"Docência e tutoria":10,"Consultoria":9,"Gestão e governança TI":10,"Análise de sistemas e requisitos":9,"Dados e negócios":9,"IA e ciência de dados":7,"Administração tecnológica":8}[cat]
     penalty = 0
     notes = []
     if any(norm(x) in desc for x in ENGLISH_STRONG):
@@ -398,6 +448,8 @@ def alignment_reasons(j):
     desc = norm(j["description"])
     source_indexed = j["source"].startswith("Busca indexada:")
     strong, caution = [], []
+    if cat == "Análise de sistemas e requisitos" and "sql server" in desc:
+        caution.append("SQL Server: vivência específica não confirmada no currículo")
     hits = []
     for term in POSITIVE[cat]:
         normalized = norm(term)
