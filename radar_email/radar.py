@@ -99,7 +99,7 @@ def mandatory_nonprofile_stack(description):
         for match in re.finditer(expression, desc):
             preceding = desc[max(0, match.start()-90):match.start()]
             # A existência de uma tecnologia apenas desejável não elimina a vaga.
-            if re.search(r"\\b(?:desej[aá]vel|diferencial|opcional|nice[- ]to[- ]have|um plus)\\b", preceding[-65:]):
+            if re.search(r"\\b(?:desej[aá]ve(?:l|is)|diferencia(?:l|is)|opciona(?:l|is)|nice[- ]to[- ]have|um plus)\\b", preceding[-65:]):
                 continue
             for heading in section_heads:
                 if heading.end() > match.start():
