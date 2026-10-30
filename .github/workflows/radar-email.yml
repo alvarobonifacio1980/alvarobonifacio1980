@@ -58,14 +58,6 @@ jobs:
             radar_email/radar_interativo.html
           if-no-files-found: error
           retention-days: 7
-      - name: Disponibilizar relatorio interativo apos envio
-        if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.modo == 'enviar') }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: radar-interativo
-          path: radar_email/radar_interativo.html
-          if-no-files-found: error
-          retention-days: 7
       - name: Salvar controle de vagas enviadas
         if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.modo == 'enviar') }}
         run: |
