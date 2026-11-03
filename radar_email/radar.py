@@ -82,30 +82,30 @@ BENCHMARK = {
 # Tecnologias sem experiência profissional confirmada no currículo: só são
 # eliminatórias quando aparecem como exigência, não como diferencial.
 NON_PROFILE_STACKS = {
-    "ecossistema .NET/C#": r"(?<![a-z0-9])(?:\\.net|asp\\s*\\.?\\s*net|dotnet|c\\s*#)(?![a-z0-9])",
-    "Java/Spring Boot": r"\\bspring\\s+boot\\b|\\bjava\\s*[/+]\\s*spring\\b",
-    "SAP/ABAP": r"\\babap\\b",
+    "ecossistema .NET/C#": r"(?<![a-z0-9])(?:\.net|asp\s*\.?\s*net|dotnet|c\s*#)(?![a-z0-9])",
+    "Java/Spring Boot": r"\bspring\s+boot\b|\bjava\s*[/+]\s*spring\b",
+    "SAP/ABAP": r"\babap\b",
 }
 
 def mandatory_nonprofile_stack(description):
     """Identifica especialização exigida, evitando inferir obrigação de mero diferencial."""
     desc = clean(description).lower()
     section_heads = list(re.finditer(
-        r"\\b(?:requisitos\\s+(?:essenciais|obrigat[oó]rios|t[eé]cnicos)|"
-        r"requisitos\\s*:|qualifica[cç][oõ]es\\s+obrigat[oó]rias|"
-        r"must[- ]have\\s*:|required\\s+qualifications\\s*:|requirements\\s*:)", desc))
-    section_end = r"\\b(?:diferenciais|desej[aá]veis|nice[- ]to[- ]have|benef[ií]cios|o que oferecemos|sobre n[oó]s|responsabilidades)\\b"
+        r"\b(?:requisitos\s+(?:essenciais|obrigat[oó]rios|t[eé]cnicos)|"
+        r"requisitos\s*:|qualifica[cç][oõ]es\s+obrigat[oó]rias|"
+        r"must[- ]have\s*:|required\s+qualifications\s*:|requirements\s*:)", desc))
+    section_end = r"\b(?:diferenciais|desej[aá]veis|nice[- ]to[- ]have|benef[ií]cios|o que oferecemos|sobre n[oó]s|responsabilidades)\b"
     for name, expression in NON_PROFILE_STACKS.items():
         for match in re.finditer(expression, desc):
             preceding = desc[max(0, match.start()-90):match.start()]
             # O bloco opcional prevalece sobre requisitos gerais anteriores.
             optional_headings = list(re.finditer(
-                r"\\b(?:diferenciais|desej[aá]veis|nice[- ]to[- ]have|opcionais)\\s*:", desc[:match.start()]))
+                r"\b(?:diferenciais|desej[aá]veis|nice[- ]to[- ]have|opcionais)\s*:", desc[:match.start()]))
             latest_mandatory = max((h.start() for h in section_heads if h.start() < match.start()), default=-1)
             if optional_headings and optional_headings[-1].start() > latest_mandatory:
                 continue
             # A existência de uma tecnologia apenas desejável não elimina a vaga.
-            if re.search(r"\\b(?:desej[aá]ve(?:l|is)|diferencia(?:l|is)|opciona(?:l|is)|nice[- ]to[- ]have|um plus)\\b", preceding[-65:]):
+            if re.search(r"\b(?:desej[aá]ve(?:l|is)|diferencia(?:l|is)|opciona(?:l|is)|nice[- ]to[- ]have|um plus)\b", preceding[-65:]):
                 continue
             for heading in section_heads:
                 if heading.end() > match.start():
@@ -114,9 +114,9 @@ def mandatory_nonprofile_stack(description):
                 if not re.search(section_end, between):
                     return name
             # Anúncios sem seções: exigir expressão explícita próxima da tecnologia.
-            if re.search(r"\\b(?:obrigat[oó]ri[oa]s?|indispens[aá]vel|essencial|exig[ií]d[oa]s?|"
+            if re.search(r"\b(?:obrigat[oó]ri[oa]s?|indispens[aá]vel|essencial|exig[ií]d[oa]s?|"
                          r"exige|requer|dom[ií]nio|experi[eê]ncia|conhecimento|familiaridade|"
-                         r"must[- ]have|required)\\b", preceding[-65:]):
+                         r"must[- ]have|required)\b", preceding[-65:]):
                 return name
     return None
 
