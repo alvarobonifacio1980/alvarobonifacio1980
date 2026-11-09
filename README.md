@@ -1,10 +1,20 @@
 # Álvaro Bonifácio
 
-**Tecnologia da Informação · Ciência de Dados · Inteligência Artificial · Gestão de TI**
+**Análise e Ciência de Dados · Python · SQL · Power BI · Machine Learning**  
+**Gestão de TI, Projetos e Serviços · ITSM · Governança**
 
-Profissional de Tecnologia da Informação com **mais de 30 anos de experiência** em desenvolvimento de sistemas, gestão de serviços, projetos, processos e equipes. Atualmente, concentro meus estudos e projetos em **Ciência de Dados, Machine Learning e IA aplicada**, combinando experiência técnica e gerencial com investigação quantitativa e desenvolvimento de aplicações.
+Profissional de Tecnologia da Informação com atuação **desde 1997**, combinando experiência em desenvolvimento de sistemas, gestão de serviços e projetos multidisciplinares com estudos e aplicações em **Dados, Analytics e Inteligência Artificial**. Neste portfólio, apresento análises exploratórias, dashboards, experimentos de aprendizado de máquina e aplicações web, com atenção à interpretação dos resultados e às limitações de cada estudo.
 
-🎓 **Mestrando em Ciência da Computação — UFJF**, com interesse de pesquisa em Inteligência Computacional, modelagem preditiva e séries temporais financeiras. Desenvolvo também iniciativas independentes no **[CDMF-Lab](https://www.cdmf.ia.br)**, conectando dados, tecnologia e mercado financeiro.
+🎓 **Mestrando em Ciência da Computação na UFJF**, com pesquisas em Inteligência Computacional e séries temporais. Desenvolvo também projetos independentes no **[CDMF-Lab](https://www.cdmf.ia.br)**.
+
+## Comece por aqui
+
+| Seu interesse | Projetos e exemplos |
+| :--- | :--- |
+| **Análise de Dados e BI** | [ETL, análise exploratória, Power BI e Tableau](https://github.com/alvarobonifacio1980/Analise-de-Dados) |
+| **Machine Learning e séries temporais** | [Experimentos e validação temporal](https://github.com/alvarobonifacio1980/Aprendizado-de-Maquina) |
+| **Mineração de Dados** | [Agrupamento, associação, classificação e regressão](https://github.com/alvarobonifacio1980/Mineracao-de-Dados) |
+| **Aplicações em Python e IA** | [BazinBot](https://github.com/alvarobonifacio1980/BazinBot) · [Chatbot](https://github.com/alvarobonifacio1980/chatbot) · [FotoImagem](https://github.com/alvarobonifacio1980/foto_imagem) |
 
 ## Projetos em destaque
 
