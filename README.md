@@ -11,8 +11,8 @@ Profissional de Tecnologia da Informação com atuação **desde 1997**, combina
 
 | Seu interesse | Projetos e exemplos |
 | :--- | :--- |
-| **Análise de Dados e BI** | [ETL, análise exploratória, Power BI e Tableau](https://github.com/alvarobonifacio1980/Analise-de-Dados) |
-| **Machine Learning e séries temporais** | [Experimentos e validação temporal](https://github.com/alvarobonifacio1980/Aprendizado-de-Maquina) |
+| **Análise de Dados, BI e SQL** | [ETL, dashboards Power BI/Tableau e SQL aplicado à gestão de serviços](https://github.com/alvarobonifacio1980/Analise-de-Dados) |
+| **Machine Learning e Deep Learning** | [Comparações entre modelos, LSTM, GRU, TCN, Transformer e ensembles](https://github.com/alvarobonifacio1980/Aprendizado-de-Maquina) |
 | **Mineração de Dados** | [Agrupamento, associação, classificação e regressão](https://github.com/alvarobonifacio1980/Mineracao-de-Dados) |
 | **Aplicações em Python e IA** | [BazinBot](https://github.com/alvarobonifacio1980/BazinBot) · [Chatbot](https://github.com/alvarobonifacio1980/chatbot) · [FotoImagem](https://github.com/alvarobonifacio1980/foto_imagem) |
 
@@ -42,9 +42,9 @@ Capturas reais das interfaces publicadas no Render, obtidas automaticamente pelo
 
 | Projeto | O que demonstra | Repositório |
 | :--- | :--- | :--- |
-| **Aprendizado de Máquina** | Estudos de previsão de volatilidade financeira, baselines, preparação de séries temporais e validação metodológica. | [Ver notebooks e documentação](https://github.com/alvarobonifacio1980/Aprendizado-de-Maquina) |
+| **Aprendizado de Máquina** | Comparações de modelos estatísticos, XGBoost, redes neurais e ensembles para previsão de volatilidade financeira. | [Ver notebooks e documentação](https://github.com/alvarobonifacio1980/Aprendizado-de-Maquina) |
 | **Mineração de Dados** | Preparação de dados e EDA, agrupamento, regras de associação, classificação e regressão. | [Ver notebooks e dados](https://github.com/alvarobonifacio1980/Mineracao-de-Dados) |
-| **Análise de Dados** | ETL e análise exploratória com Python, estudos de séries financeiras e dashboards em Power BI e Tableau (vendas, estratégias, indicadores públicos e saúde). | [Ver projetos](https://github.com/alvarobonifacio1980/Analise-de-Dados) |
+| **Análise de Dados** | ETL e EDA com Python, dashboards Power BI e Tableau, estudos de séries financeiras e case de SQL aplicado à gestão de serviços de TI. | [Ver projetos](https://github.com/alvarobonifacio1980/Analise-de-Dados) |
 
 **Pesquisa em andamento:** previsão da volatilidade de ativos brasileiros, combinando séries temporais, análise estatística, Machine Learning e Deep Learning.
 
