@@ -3,7 +3,7 @@
 **Análise e Ciência de Dados · Python · SQL · Power BI · Machine Learning**  
 **Gestão de TI, Projetos e Serviços · ITSM · Governança**
 
-Profissional de Tecnologia da Informação com atuação **desde 1997**, combinando experiência em desenvolvimento de sistemas, gestão de serviços e projetos multidisciplinares com estudos e aplicações em **Dados, Analytics e Inteligência Artificial**. Neste portfólio, apresento análises exploratórias, dashboards, experimentos de aprendizado de máquina e aplicações web, com atenção à interpretação dos resultados e às limitações de cada estudo.
+Profissional de Tecnologia da Informação com atuação **desde 1997**, combinando experiência em desenvolvimento de sistemas, gestão de serviços e projetos multidisciplinares com estudos e aplicações em **Dados, Analytics e Inteligência Artificial**. Neste portfólio, reúno **dashboards, análises de dados, projetos de Machine Learning, SQL aplicado e aplicações web em Python e IA**.
 
 🎓 **Mestrando em Ciência da Computação na UFJF**, com pesquisas em Inteligência Computacional e séries temporais. Desenvolvo também projetos independentes no **[CDMF-Lab](https://www.cdmf.ia.br)**.
 
@@ -18,7 +18,7 @@ Profissional de Tecnologia da Informação com atuação **desde 1997**, combina
 
 ## Projetos em destaque
 
-Os projetos abaixo combinam aplicações que podem ser utilizadas no navegador com estudos técnicos e acadêmicos documentados.
+Projetos de tecnologia e dados, incluindo aplicativos interativos e estudos aplicados.
 
 ### Aplicações web
 
@@ -46,7 +46,7 @@ Capturas reais das interfaces publicadas no Render, obtidas automaticamente pelo
 | **Mineração de Dados** | Preparação de dados e EDA, agrupamento, regras de associação, classificação e regressão. | [Ver notebooks e dados](https://github.com/alvarobonifacio1980/Mineracao-de-Dados) |
 | **Análise de Dados** | ETL e análise exploratória com Python, estudos de séries financeiras e dashboards em Power BI e Tableau (vendas, estratégias, indicadores públicos e saúde). | [Ver projetos](https://github.com/alvarobonifacio1980/Analise-de-Dados) |
 
-**Pesquisa em andamento:** previsão da volatilidade futura de ativos brasileiros, com atenção especial à PETR4. Os experimentos investigam séries temporais, indicadores financeiros, modelos estatísticos e de aprendizado de máquina, respeitando separação temporal entre treino e teste e prevenção de *data leakage*. Resultados experimentais não são promessas de desempenho em operações financeiras.
+**Pesquisa em andamento:** previsão da volatilidade de ativos brasileiros, combinando séries temporais, análise estatística, Machine Learning e Deep Learning.
 
 ## Competências e ferramentas
 
@@ -76,4 +76,4 @@ Busco soluções **simples, úteis, verificáveis e bem documentadas**. Em proje
 
 ---
 
-*Projetos acadêmicos, educacionais e de pesquisa aplicada. Aplicações financeiras não constituem recomendação de investimento.*
+*Projetos de análise de dados, desenvolvimento e pesquisa aplicada.*
